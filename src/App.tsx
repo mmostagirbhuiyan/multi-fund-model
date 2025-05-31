@@ -82,7 +82,7 @@ const App: React.FC = () => {
     <div className="container">
       <div className="header">
         <h1>Professional 30-Year REIT Analysis</h1>
-        <p>Complete Cash-Out Refinancing Model with 1031 Exchange and Detailed Yield Options</p>
+        <p>Complete Cash-Out Refinancing Model and Detailed Yield Options</p>
       </div>
       <CalculatorForm
         values={{ ...values, calculatedNetYield }}
