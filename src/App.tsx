@@ -10,11 +10,30 @@ function App() {
   const [results, setResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>({
+    downPayment: 20,
+    mortgageRate: 5.5,
+    appreciationRate: 3,
+    initialCash: 100000,
+    refiLTV: 75,
+    closingCosts: 4,
+    refiCosts: 2,
+    incomeTaxRate: 24,
+    yieldMode: 'itemized',
+    grossRentalYield: 6,
+    propertyTaxRate: 1.2,
+    maintenanceRate: 1,
+    insuranceRate: 0.5,
+    managementFeeRate: 8,
+    vacancyRate: 5,
+    netRentalYield: 4,
+  });
 
-  const handleCalculate = async (formData: any) => {
+  const handleCalculate = async (newFormData: any) => {
+    setFormData(newFormData); // Update form data when calculating
     setIsLoading(true);
     try {
-      const calculatedResults = await calculateREIT(formData);
+      const calculatedResults = await calculateREIT(newFormData);
       setResults({
         ...calculatedResults.summary,
         portfolioMetrics: {
@@ -153,7 +172,7 @@ function App() {
                   <p className="text-slate-400">Configure your REIT portfolio parameters</p>
                 </div>
               </div>
-              <CalculatorForm onSubmit={handleCalculate} />
+              <CalculatorForm onSubmit={handleCalculate} initialData={formData} />
             </div>
           </div>
         </div>

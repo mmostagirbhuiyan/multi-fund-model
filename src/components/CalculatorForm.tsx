@@ -3,32 +3,33 @@ import { Building2, Calculator, TrendingUp, DollarSign, Percent, Home, Shield, B
 
 export interface CalculatorFormProps {
   onSubmit: (formData: any) => void;
+  initialData?: any;
 }
 
-const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit }) => {
+const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, initialData }) => {
   const [formData, setFormData] = React.useState({
-    downPayment: 20,
-    mortgageRate: 5.5,
-    appreciationRate: 3,
-    initialCash: 100000,
-    refiLTV: 75,
-    closingCosts: 4,
-    refiCosts: 2,
-    incomeTaxRate: 24,
-    yieldMode: 'itemized' as 'itemized' | 'net',
-    grossRentalYield: 6,
-    propertyTaxRate: 1.2,
-    maintenanceRate: 1,
-    insuranceRate: 0.5,
-    managementFeeRate: 8,
-    vacancyRate: 5,
-    netRentalYield: 4,
+    downPayment: initialData?.downPayment ?? 20,
+    mortgageRate: initialData?.mortgageRate ?? 5.5,
+    appreciationRate: initialData?.appreciationRate ?? 3,
+    initialCash: initialData?.initialCash ?? 100000,
+    refiLTV: initialData?.refiLTV ?? 75,
+    closingCosts: initialData?.closingCosts ?? 4,
+    refiCosts: initialData?.refiCosts ?? 2,
+    incomeTaxRate: initialData?.incomeTaxRate ?? 24,
+    yieldMode: initialData?.yieldMode ?? 'itemized' as 'itemized' | 'net',
+    grossRentalYield: initialData?.grossRentalYield ?? 6,
+    propertyTaxRate: initialData?.propertyTaxRate ?? 1.2,
+    maintenanceRate: initialData?.maintenanceRate ?? 1,
+    insuranceRate: initialData?.insuranceRate ?? 0.5,
+    managementFeeRate: initialData?.managementFeeRate ?? 8,
+    vacancyRate: initialData?.vacancyRate ?? 5,
+    netRentalYield: initialData?.netRentalYield ?? 4,
   });
 
   const handleChange = (field: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value === '' ? '' : Number(value)
+      [field]: field === 'yieldMode' ? value : (value === '' ? '' : Number(value))
     }));
   };
 
@@ -226,27 +227,31 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit }) => {
 
         <div className="mb-6">
           <div className="flex items-center gap-4 p-4 bg-slate-800/30 rounded-xl border border-slate-700/30">
-            <input
-              type="radio"
-              id="itemized"
-              name="yieldMode"
-              value="itemized"
-              checked={formData.yieldMode === 'itemized'}
-              onChange={(e) => handleChange('yieldMode', e.target.value)}
-              className="w-4 h-4 text-blue-500 border-slate-600 focus:ring-blue-500"
-            />
-            <label htmlFor="itemized" className="text-white">Itemized Yield Inputs</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="radio"
+                id="itemized"
+                name="yieldMode"
+                value="itemized"
+                checked={formData.yieldMode === 'itemized'}
+                onChange={(e) => handleChange('yieldMode', e.target.value)}
+                className="w-4 h-4 text-blue-500 border-slate-600 focus:ring-blue-500 bg-slate-800 checked:bg-blue-500 checked:border-blue-500"
+              />
+              <label htmlFor="itemized" className="text-white">Itemized Yield Inputs</label>
+            </div>
 
-            <input
-              type="radio"
-              id="net"
-              name="yieldMode"
-              value="net"
-              checked={formData.yieldMode === 'net'}
-              onChange={(e) => handleChange('yieldMode', e.target.value)}
-              className="w-4 h-4 text-blue-500 border-slate-600 focus:ring-blue-500 ml-6"
-            />
-            <label htmlFor="net" className="text-white">Net Yield Input</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="radio"
+                id="net"
+                name="yieldMode"
+                value="net"
+                checked={formData.yieldMode === 'net'}
+                onChange={(e) => handleChange('yieldMode', e.target.value)}
+                className="w-4 h-4 text-blue-500 border-slate-600 focus:ring-blue-500 bg-slate-800 checked:bg-blue-500 checked:border-blue-500"
+              />
+              <label htmlFor="net" className="text-white">Net Yield Input</label>
+            </div>
           </div>
         </div>
 
