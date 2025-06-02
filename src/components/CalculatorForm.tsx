@@ -1,309 +1,397 @@
 import React from 'react';
-import { 
-  Button,
-  TextField,
-  Box,
-  Typography,
-  Paper,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormControl,
-  FormLabel,
-  Divider,
-  Alert
-} from '@mui/material';
-// import './CalculatorForm.css'; // Removed: styles are in index.css
-// import clsx from 'clsx'; // Not used
+import { Building2, Calculator, TrendingUp, DollarSign, Percent, Home, Shield, Briefcase, AlertCircle } from 'lucide-react';
 
 export interface CalculatorFormProps {
-  values: {
-    downPayment: number;
-    mortgageRate: number;
-    appreciationRate: number;
-    initialCash: number;
-    refiLTV: number;
-    closingCosts: number;
-    refiCosts: number;
-    incomeTaxRate: number;
-    yieldMode: 'itemized' | 'net';
-    grossRentalYield: number;
-    propertyTaxRate: number;
-    maintenanceRate: number;
-    insuranceRate: number;
-    managementFeeRate: number;
-    vacancyRate: number;
-    netRentalYield: number;
-    calculatedNetYield: number;
-  };
-  onChange: (field: string, value: number | string) => void;
-  onYieldModeChange: (mode: 'itemized' | 'net') => void;
+  onSubmit: (formData: any) => void;
 }
 
-const CalculatorForm: React.FC<CalculatorFormProps> = ({ values, onChange, onYieldModeChange }) => {
+const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit }) => {
+  const [formData, setFormData] = React.useState({
+    downPayment: 20,
+    mortgageRate: 5.5,
+    appreciationRate: 3,
+    initialCash: 100000,
+    refiLTV: 75,
+    closingCosts: 4,
+    refiCosts: 2,
+    incomeTaxRate: 24,
+    yieldMode: 'itemized' as 'itemized' | 'net',
+    grossRentalYield: 6,
+    propertyTaxRate: 1.2,
+    maintenanceRate: 1,
+    insuranceRate: 0.5,
+    managementFeeRate: 8,
+    vacancyRate: 5,
+    netRentalYield: 4,
+  });
+
+  const handleChange = (field: string, value: string | number) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value === '' ? '' : Number(value)
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  const inputClasses = "w-full bg-slate-800/40 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all";
+  const labelClasses = "block text-sm font-medium text-slate-300 mb-2";
+  const sectionClasses = "bg-slate-800/20 rounded-2xl p-6 border border-slate-700/30";
+
   return (
-    <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 3 }}>
-        REIT Calculator
-      </Typography>
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Investment Parameters Section */}
+      <div className={sectionClasses}>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+            <DollarSign className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white">Investment Parameters</h3>
+            <p className="text-sm text-slate-400">Core investment assumptions</p>
+          </div>
+        </div>
 
-      <Box component="form" sx={{ display: 'grid', gap: 3 }}>
-        <TextField
-          fullWidth
-          label="Down Payment (%)"
-          variant="outlined"
-          type="number"
-          value={values.downPayment === 0 ? '' : values.downPayment}
-          onChange={(e) => {
-            const value = e.target.value;
-            onChange('downPayment', value === '' ? '' : Number(value));
-          }}
-          InputProps={{ inputProps: { step: 1 } }}
-        />
-        
-        <TextField
-          fullWidth
-          label="Mortgage Rate (%)"
-          variant="outlined"
-          type="number"
-          value={values.mortgageRate === 0 ? '' : values.mortgageRate}
-          onChange={(e) => {
-            const value = e.target.value;
-            onChange('mortgageRate', value === '' ? '' : Number(value));
-          }}
-          InputProps={{ inputProps: { step: 0.1 } }}
-        />
-        
-        <TextField
-          fullWidth
-          label="Annual Appreciation (%)"
-          variant="outlined"
-          type="number"
-          value={values.appreciationRate === 0 ? '' : values.appreciationRate}
-          onChange={(e) => {
-            const value = e.target.value;
-            onChange('appreciationRate', value === '' ? '' : Number(value));
-          }}
-          InputProps={{ inputProps: { step: 0.1 } }}
-        />
-        
-        <TextField
-          fullWidth
-          label="Initial Cash ($)"
-          variant="outlined"
-          type="number"
-          value={values.initialCash === 0 ? '' : values.initialCash}
-          onChange={(e) => {
-            const value = e.target.value;
-            onChange('initialCash', value === '' ? '' : Number(value));
-          }}
-          InputProps={{ inputProps: { step: 1000 } }}
-        />
-        
-        <TextField
-          fullWidth
-          label="Max Refi LTV (%)"
-          variant="outlined"
-          type="number"
-          value={values.refiLTV === 0 ? '' : values.refiLTV}
-          onChange={(e) => {
-            const value = e.target.value;
-            onChange('refiLTV', value === '' ? '' : Number(value));
-          }}
-          InputProps={{ inputProps: { step: 1 } }}
-        />
-        
-        <TextField
-          fullWidth
-          label="Purchase Closing Costs (%)"
-          variant="outlined"
-          type="number"
-          value={values.closingCosts === 0 ? '' : values.closingCosts}
-          onChange={(e) => {
-            const value = e.target.value;
-            onChange('closingCosts', value === '' ? '' : Number(value));
-          }}
-          InputProps={{ inputProps: { step: 0.1 } }}
-        />
-        
-        <TextField
-          fullWidth
-          label="Refinancing Costs (%)"
-          variant="outlined"
-          type="number"
-          value={values.refiCosts === 0 ? '' : values.refiCosts}
-          onChange={(e) => {
-            const value = e.target.value;
-            onChange('refiCosts', value === '' ? '' : Number(value));
-          }}
-          InputProps={{ inputProps: { step: 0.1 } }}
-        />
-        
-        <TextField
-          fullWidth
-          label="Income Tax Rate (%)"
-          variant="outlined"
-          type="number"
-          value={values.incomeTaxRate === 0 ? '' : values.incomeTaxRate}
-          onChange={(e) => {
-            const value = e.target.value;
-            onChange('incomeTaxRate', value === '' ? '' : Number(value));
-          }}
-          InputProps={{ inputProps: { step: 0.1 } }}
-        />
-        
-        <Alert severity="info" sx={{ mt: 1 }}>
-          <strong>Note:</strong> The initial property value is assumed to be 5X your initial cash investment. Closing costs (4%) are financed through the initial mortgage, preserving initial cash for future acquisitions.
-        </Alert>
-        
-        <Paper variant="outlined" sx={{ p: 3, mt: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Rental Yield Calculator
-          </Typography>
-          
-          <FormControl component="fieldset" sx={{ mb: 2 }}>
-            <FormLabel component="legend">Yield Input Mode</FormLabel>
-            <RadioGroup
-              value={values.yieldMode}
-              onChange={(e) => onYieldModeChange(e.target.value as 'itemized' | 'net')}
-            >
-              <FormControlLabel value="itemized" control={<Radio />} label="Itemized Yield Inputs" />
-              <FormControlLabel value="net" control={<Radio />} label="Net Yield Input" />
-            </RadioGroup>
-          </FormControl>
-          
-          <Divider sx={{ mb: 2 }} />
-          
-          <Box sx={{ display: 'grid', gap: 2 }}>
-            {/* Itemized Inputs */}
-            {values.yieldMode === 'itemized' && (
-              <>
-                <TextField
-                  fullWidth
-                  label="Gross Rental Yield (%)"
-                  variant="outlined"
-                  type="number"
-                  value={values.grossRentalYield === 0 ? '' : values.grossRentalYield}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    onChange('grossRentalYield', value === '' ? '' : Number(value));
-                  }}
-                  InputProps={{ inputProps: { step: 0.1 } }}
-                />
-                
-                <TextField
-                  fullWidth
-                  label="Property Tax Rate (%)"
-                  variant="outlined"
-                  type="number"
-                  value={values.propertyTaxRate === 0 ? '' : values.propertyTaxRate}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    onChange('propertyTaxRate', value === '' ? '' : Number(value));
-                  }}
-                  InputProps={{ inputProps: { step: 0.1 } }}
-                />
-                
-                <TextField
-                  fullWidth
-                  label="Maintenance Rate (%)"
-                  variant="outlined"
-                  type="number"
-                  value={values.maintenanceRate === 0 ? '' : values.maintenanceRate}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    onChange('maintenanceRate', value === '' ? '' : Number(value));
-                  }}
-                  InputProps={{ inputProps: { step: 0.1 } }}
-                />
-                
-                <TextField
-                  fullWidth
-                  label="Insurance Rate (%)"
-                  variant="outlined"
-                  type="number"
-                  value={values.insuranceRate === 0 ? '' : values.insuranceRate}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    onChange('insuranceRate', value === '' ? '' : Number(value));
-                  }}
-                  InputProps={{ inputProps: { step: 0.1 } }}
-                />
-                
-                <TextField
-                  fullWidth
-                  label="Management Fee Rate (%)"
-                  variant="outlined"
-                  type="number"
-                  value={values.managementFeeRate === 0 ? '' : values.managementFeeRate}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    onChange('managementFeeRate', value === '' ? '' : Number(value));
-                  }}
-                  InputProps={{ inputProps: { step: 0.1 } }}
-                />
-                
-                <TextField
-                  fullWidth
-                  label="Vacancy Rate (%)"
-                  variant="outlined"
-                  type="number"
-                  value={values.vacancyRate === 0 ? '' : values.vacancyRate}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    onChange('vacancyRate', value === '' ? '' : Number(value));
-                  }}
-                  InputProps={{ inputProps: { step: 0.1 } }}
-                />
-              </>
-            )}
-            
-            {/* Net Yield Input */}
-            {values.yieldMode === 'net' && (
-              <TextField
-                fullWidth
-                label="Net Rental Yield (%)"
-                variant="outlined"
-                type="number"
-                value={values.netRentalYield === 0 ? '' : values.netRentalYield}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  onChange('netRentalYield', value === '' ? '' : Number(value));
-                }}
-                InputProps={{ inputProps: { step: 0.1 } }}
-              />
-            )}
-            
-            {/* Calculated Net Yield (readonly) */}
-            <TextField
-              fullWidth
-              label="Calculated Net Yield (%)"
-              variant="outlined"
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className={labelClasses}>
+              <div className="flex items-center gap-2">
+                <Percent className="w-4 h-4 text-blue-400" />
+                Down Payment
+              </div>
+            </label>
+            <input
               type="number"
-              value={values.calculatedNetYield === 0 ? '' : values.calculatedNetYield}
-              InputProps={{ readOnly: true }}
+              value={formData.downPayment}
+              onChange={(e) => handleChange('downPayment', e.target.value)}
+              className={inputClasses}
+              step="1"
+              min="0"
+              max="100"
             />
-          </Box>
-        </Paper>
+          </div>
 
-        <Button
-          variant="contained"
-          size="large"
-          onClick={() => {}} // This needs to call the actual calculate function from App.tsx
-          sx={{
-            mt: 2,
-            py: 2,
-            background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
-            '&:hover': {
-              transform: 'scale(1.02)',
-              boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)'
-            }
-          }}
-        >
-          Calculate Portfolio
-        </Button>
-      </Box>
-    </Paper>
+          <div>
+            <label className={labelClasses}>
+              <div className="flex items-center gap-2">
+                <Percent className="w-4 h-4 text-purple-400" />
+                Mortgage Rate
+              </div>
+            </label>
+            <input
+              type="number"
+              value={formData.mortgageRate}
+              onChange={(e) => handleChange('mortgageRate', e.target.value)}
+              className={inputClasses}
+              step="0.1"
+              min="0"
+            />
+          </div>
+
+          <div>
+            <label className={labelClasses}>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-green-400" />
+                Annual Appreciation
+              </div>
+            </label>
+            <input
+              type="number"
+              value={formData.appreciationRate}
+              onChange={(e) => handleChange('appreciationRate', e.target.value)}
+              className={inputClasses}
+              step="0.1"
+              min="0"
+            />
+          </div>
+
+          <div>
+            <label className={labelClasses}>
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-yellow-400" />
+                Initial Cash
+              </div>
+            </label>
+            <input
+              type="number"
+              value={formData.initialCash}
+              onChange={(e) => handleChange('initialCash', e.target.value)}
+              className={inputClasses}
+              step="1000"
+              min="0"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Refinancing Parameters Section */}
+      <div className={sectionClasses}>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-xl flex items-center justify-center">
+            <Home className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white">Refinancing Parameters</h3>
+            <p className="text-sm text-slate-400">Cash-out refinancing settings</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className={labelClasses}>
+              <div className="flex items-center gap-2">
+                <Percent className="w-4 h-4 text-green-400" />
+                Max Refi LTV
+              </div>
+            </label>
+            <input
+              type="number"
+              value={formData.refiLTV}
+              onChange={(e) => handleChange('refiLTV', e.target.value)}
+              className={inputClasses}
+              step="1"
+              min="0"
+              max="100"
+            />
+          </div>
+
+          <div>
+            <label className={labelClasses}>
+              <div className="flex items-center gap-2">
+                <Percent className="w-4 h-4 text-blue-400" />
+                Refinancing Costs
+              </div>
+            </label>
+            <input
+              type="number"
+              value={formData.refiCosts}
+              onChange={(e) => handleChange('refiCosts', e.target.value)}
+              className={inputClasses}
+              step="0.1"
+              min="0"
+            />
+          </div>
+
+          <div>
+            <label className={labelClasses}>
+              <div className="flex items-center gap-2">
+                <Percent className="w-4 h-4 text-purple-400" />
+                Closing Costs
+              </div>
+            </label>
+            <input
+              type="number"
+              value={formData.closingCosts}
+              onChange={(e) => handleChange('closingCosts', e.target.value)}
+              className={inputClasses}
+              step="0.1"
+              min="0"
+            />
+          </div>
+
+          <div>
+            <label className={labelClasses}>
+              <div className="flex items-center gap-2">
+                <Percent className="w-4 h-4 text-red-400" />
+                Income Tax Rate
+              </div>
+            </label>
+            <input
+              type="number"
+              value={formData.incomeTaxRate}
+              onChange={(e) => handleChange('incomeTaxRate', e.target.value)}
+              className={inputClasses}
+              step="0.1"
+              min="0"
+              max="100"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Rental Yield Section */}
+      <div className={sectionClasses}>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+            <Briefcase className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white">Rental Yield Calculator</h3>
+            <p className="text-sm text-slate-400">Property income and expense parameters</p>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <div className="flex items-center gap-4 p-4 bg-slate-800/30 rounded-xl border border-slate-700/30">
+            <input
+              type="radio"
+              id="itemized"
+              name="yieldMode"
+              value="itemized"
+              checked={formData.yieldMode === 'itemized'}
+              onChange={(e) => handleChange('yieldMode', e.target.value)}
+              className="w-4 h-4 text-blue-500 border-slate-600 focus:ring-blue-500"
+            />
+            <label htmlFor="itemized" className="text-white">Itemized Yield Inputs</label>
+
+            <input
+              type="radio"
+              id="net"
+              name="yieldMode"
+              value="net"
+              checked={formData.yieldMode === 'net'}
+              onChange={(e) => handleChange('yieldMode', e.target.value)}
+              className="w-4 h-4 text-blue-500 border-slate-600 focus:ring-blue-500 ml-6"
+            />
+            <label htmlFor="net" className="text-white">Net Yield Input</label>
+          </div>
+        </div>
+
+        {formData.yieldMode === 'itemized' ? (
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className={labelClasses}>
+                <div className="flex items-center gap-2">
+                  <Percent className="w-4 h-4 text-green-400" />
+                  Gross Rental Yield
+                </div>
+              </label>
+              <input
+                type="number"
+                value={formData.grossRentalYield}
+                onChange={(e) => handleChange('grossRentalYield', e.target.value)}
+                className={inputClasses}
+                step="0.1"
+                min="0"
+              />
+            </div>
+
+            <div>
+              <label className={labelClasses}>
+                <div className="flex items-center gap-2">
+                  <Percent className="w-4 h-4 text-blue-400" />
+                  Property Tax Rate
+                </div>
+              </label>
+              <input
+                type="number"
+                value={formData.propertyTaxRate}
+                onChange={(e) => handleChange('propertyTaxRate', e.target.value)}
+                className={inputClasses}
+                step="0.1"
+                min="0"
+              />
+            </div>
+
+            <div>
+              <label className={labelClasses}>
+                <div className="flex items-center gap-2">
+                  <Percent className="w-4 h-4 text-purple-400" />
+                  Maintenance Rate
+                </div>
+              </label>
+              <input
+                type="number"
+                value={formData.maintenanceRate}
+                onChange={(e) => handleChange('maintenanceRate', e.target.value)}
+                className={inputClasses}
+                step="0.1"
+                min="0"
+              />
+            </div>
+
+            <div>
+              <label className={labelClasses}>
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-yellow-400" />
+                  Insurance Rate
+                </div>
+              </label>
+              <input
+                type="number"
+                value={formData.insuranceRate}
+                onChange={(e) => handleChange('insuranceRate', e.target.value)}
+                className={inputClasses}
+                step="0.1"
+                min="0"
+              />
+            </div>
+
+            <div>
+              <label className={labelClasses}>
+                <div className="flex items-center gap-2">
+                  <Percent className="w-4 h-4 text-red-400" />
+                  Management Fee Rate
+                </div>
+              </label>
+              <input
+                type="number"
+                value={formData.managementFeeRate}
+                onChange={(e) => handleChange('managementFeeRate', e.target.value)}
+                className={inputClasses}
+                step="0.1"
+                min="0"
+              />
+            </div>
+
+            <div>
+              <label className={labelClasses}>
+                <div className="flex items-center gap-2">
+                  <Percent className="w-4 h-4 text-orange-400" />
+                  Vacancy Rate
+                </div>
+              </label>
+              <input
+                type="number"
+                value={formData.vacancyRate}
+                onChange={(e) => handleChange('vacancyRate', e.target.value)}
+                className={inputClasses}
+                step="0.1"
+                min="0"
+                max="100"
+              />
+            </div>
+          </div>
+        ) : (
+          <div>
+            <label className={labelClasses}>
+              <div className="flex items-center gap-2">
+                <Percent className="w-4 h-4 text-green-400" />
+                Net Rental Yield
+              </div>
+            </label>
+            <input
+              type="number"
+              value={formData.netRentalYield}
+              onChange={(e) => handleChange('netRentalYield', e.target.value)}
+              className={inputClasses}
+              step="0.1"
+              min="0"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Info Alert */}
+      <div className="flex items-start gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+        <AlertCircle className="w-5 h-5 text-blue-400 mt-0.5" />
+        <div className="text-sm text-slate-300">
+          <p className="font-medium text-white mb-1">Note about initial investment</p>
+          <p>The initial property value is assumed to be 5X your initial cash investment. Closing costs (4%) are financed through the initial mortgage, preserving initial cash for future acquisitions.</p>
+        </div>
+      </div>
+
+      {/* Submit Button */}
+      <button
+        type="submit"
+        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+      >
+        Calculate Portfolio Performance
+      </button>
+    </form>
   );
 };
 
