@@ -13,20 +13,20 @@ function App() {
   const [formData, setFormData] = useState<any>({
     downPayment: 20,
     mortgageRate: 5.5,
-    appreciationRate: 3,
+    appreciationRate: 4,
     initialCash: 100000,
-    refiLTV: 75,
+    refiLTV: 80,
     closingCosts: 4,
     refiCosts: 2,
-    incomeTaxRate: 24,
+    incomeTaxRate: 22,
     yieldMode: 'itemized',
-    grossRentalYield: 6,
+    grossRentalYield: 8,
     propertyTaxRate: 1.2,
     maintenanceRate: 1,
     insuranceRate: 0.5,
     managementFeeRate: 8,
     vacancyRate: 5,
-    netRentalYield: 4,
+    netRentalYield: 5.5,
   });
 
   const handleCalculate = async (newFormData: any) => {
