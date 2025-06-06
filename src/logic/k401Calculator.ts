@@ -16,7 +16,7 @@ export function calculate401k(inputs: K401Inputs): { results: YearlyResult[]; su
   const { initialBalance, annualSalary, employeeContributionPct, employerMatchPct, annualSalaryGrowthRate, annualReturnRate, taxRate, years } = inputs;
   let balance = initialBalance;
   let salary = annualSalary;
-  let totalContributions = initialBalance;
+  let totalContributions = 0;
   const results: YearlyResult[] = [];
   for (let year = 1; year <= years; year++) {
     const employeeContribution = salary * (employeeContributionPct / 100);
@@ -24,7 +24,8 @@ export function calculate401k(inputs: K401Inputs): { results: YearlyResult[]; su
     const totalContribution = employeeContribution + employerContribution;
     balance = (balance + totalContribution) * (1 + annualReturnRate / 100);
     totalContributions += totalContribution;
-    const roi = totalContributions > 0 ? ((balance - totalContributions) / totalContributions) * 100 : 0;
+    const invested = initialBalance + totalContributions;
+    const roi = invested > 0 ? ((balance - invested) / invested) * 100 : 0;
     results.push({
       year,
       propertyCount: 0,
@@ -33,7 +34,7 @@ export function calculate401k(inputs: K401Inputs): { results: YearlyResult[]; su
       totalDebt: 0,
       netEquity: balance,
       annualCashFlow: totalContribution,
-      cashBalance: totalContributions,
+      cashBalance: initialBalance + totalContributions,
       totalDebtService: 0,
       roi,
     });
@@ -41,7 +42,8 @@ export function calculate401k(inputs: K401Inputs): { results: YearlyResult[]; su
   }
   const final = results[results.length - 1];
   const afterTax = final.totalValue * (1 - taxRate / 100);
-  const roiAfterTax = totalContributions > 0 ? ((afterTax - totalContributions) / totalContributions) * 100 : 0;
+  const totalInvested = initialBalance + totalContributions;
+  const roiAfterTax = totalInvested > 0 ? ((afterTax - totalInvested) / totalInvested) * 100 : 0;
   const annualizedReturn = initialBalance > 0 ? (Math.pow(afterTax / initialBalance, 1 / years) - 1) * 100 : 0;
   const summary: REITCalculatorSummary = {
     propertyCount: 0,
@@ -51,7 +53,7 @@ export function calculate401k(inputs: K401Inputs): { results: YearlyResult[]; su
     roi: roiAfterTax,
     cashExtracted: totalContributions,
     annualizedReturn,
-    equityMultiple: totalContributions > 0 ? afterTax / totalContributions : 0,
+    equityMultiple: totalInvested > 0 ? afterTax / totalInvested : 0,
     years,
   };
   return { results, summary };

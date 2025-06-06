@@ -11,12 +11,13 @@ import { REITCalculatorSummary } from './reitCalculator';
 export function calculateRothIRA(inputs: RothIRAInputs): { results: YearlyResult[]; summary: REITCalculatorSummary } {
   const { initialBalance, annualContribution, annualGrowthRate, years } = inputs;
   let balance = initialBalance;
-  let totalContributions = initialBalance;
+  let totalContributions = 0;
   const results: YearlyResult[] = [];
   for (let year = 1; year <= years; year++) {
     balance = (balance + annualContribution) * (1 + annualGrowthRate / 100);
     totalContributions += annualContribution;
-    const roi = totalContributions > 0 ? ((balance - totalContributions) / totalContributions) * 100 : 0;
+    const invested = initialBalance + totalContributions;
+    const roi = invested > 0 ? ((balance - invested) / invested) * 100 : 0;
     results.push({
       year,
       propertyCount: 0,
@@ -25,14 +26,15 @@ export function calculateRothIRA(inputs: RothIRAInputs): { results: YearlyResult
       totalDebt: 0,
       netEquity: balance,
       annualCashFlow: annualContribution,
-      cashBalance: totalContributions,
+      cashBalance: initialBalance + totalContributions,
       totalDebtService: 0,
       roi,
     });
   }
   const final = results[results.length - 1];
   const afterTax = final.totalValue;
-  const roiAfterTax = totalContributions > 0 ? ((afterTax - totalContributions) / totalContributions) * 100 : 0;
+  const totalInvested = initialBalance + totalContributions;
+  const roiAfterTax = totalInvested > 0 ? ((afterTax - totalInvested) / totalInvested) * 100 : 0;
   const annualizedReturn = initialBalance > 0 ? (Math.pow(afterTax / initialBalance, 1 / years) - 1) * 100 : 0;
   const summary: REITCalculatorSummary = {
     propertyCount: 0,
@@ -42,7 +44,7 @@ export function calculateRothIRA(inputs: RothIRAInputs): { results: YearlyResult
     roi: roiAfterTax,
     cashExtracted: totalContributions, // reuse field to show total contributions
     annualizedReturn,
-    equityMultiple: totalContributions > 0 ? afterTax / totalContributions : 0,
+    equityMultiple: totalInvested > 0 ? afterTax / totalInvested : 0,
     years,
   };
   return { results, summary };
