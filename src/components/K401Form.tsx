@@ -8,12 +8,13 @@ export interface K401FormProps {
 
 const K401Form: React.FC<K401FormProps> = ({ onSubmit, initialData }) => {
   const [formData, setFormData] = React.useState({
-    initialBalance: initialData?.initialBalance ?? 0,
+    initialBalance: initialData?.initialBalance ?? 1000,
     annualSalary: initialData?.annualSalary ?? 60000,
     employeeContributionPct: initialData?.employeeContributionPct ?? 6,
     employerMatchPct: initialData?.employerMatchPct ?? 50,
     annualSalaryGrowthRate: initialData?.annualSalaryGrowthRate ?? 3,
     annualReturnRate: initialData?.annualReturnRate ?? 7,
+    taxRate: initialData?.taxRate ?? 20,
     years: initialData?.years ?? 30,
   });
 
@@ -131,6 +132,23 @@ const K401Form: React.FC<K401FormProps> = ({ onSubmit, initialData }) => {
             className={inputClasses}
             step="0.1"
             min="0"
+          />
+        </div>
+        <div>
+          <label className={labelClasses}>
+            <div className="flex items-center gap-2">
+              <Percent className="w-4 h-4 text-purple-400" />
+              Tax Rate %
+            </div>
+          </label>
+          <input
+            type="number"
+            value={formData.taxRate}
+            onChange={e => handleChange('taxRate', e.target.value)}
+            className={inputClasses}
+            step="0.1"
+            min="0"
+            max="100"
           />
         </div>
         <div>

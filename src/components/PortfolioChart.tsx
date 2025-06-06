@@ -68,13 +68,14 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data }) => {
             if (label) {
               label += ': ';
             }
-            if (context.parsed.y !== null) {
+            const value = typeof context.parsed === 'object' && context.parsed.y !== undefined ? context.parsed.y : context.parsed;
+            if (value !== null && value !== undefined) {
               label += new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD',
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
-              }).format(context.parsed.y * 1000);
+              }).format(value * 1000);
             }
             return label;
           }

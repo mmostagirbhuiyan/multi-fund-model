@@ -8,9 +8,10 @@ export interface RothIRAFormProps {
 
 const RothIRAForm: React.FC<RothIRAFormProps> = ({ onSubmit, initialData }) => {
   const [formData, setFormData] = React.useState({
-    initialBalance: initialData?.initialBalance ?? 0,
+    initialBalance: initialData?.initialBalance ?? 1000,
     annualContribution: initialData?.annualContribution ?? 6500,
     annualGrowthRate: initialData?.annualGrowthRate ?? 7,
+    taxRate: initialData?.taxRate ?? 0,
     years: initialData?.years ?? 30,
   });
 
@@ -78,6 +79,23 @@ const RothIRAForm: React.FC<RothIRAFormProps> = ({ onSubmit, initialData }) => {
             className={inputClasses}
             step="0.1"
             min="0"
+          />
+        </div>
+        <div>
+          <label className={labelClasses}>
+            <div className="flex items-center gap-2">
+              <Percent className="w-4 h-4 text-purple-400" />
+              Tax Rate %
+            </div>
+          </label>
+          <input
+            type="number"
+            value={formData.taxRate}
+            onChange={e => handleChange('taxRate', e.target.value)}
+            className={inputClasses}
+            step="0.1"
+            min="0"
+            max="100"
           />
         </div>
         <div>

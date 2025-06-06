@@ -5,6 +5,7 @@ export interface K401Inputs {
   employerMatchPct: number; // percent of employee contribution
   annualSalaryGrowthRate: number; // percent
   annualReturnRate: number; // percent
+  taxRate: number; // percent
   years: number;
 }
 
@@ -12,7 +13,7 @@ import { YearlyResult } from '../components/ResultsTable';
 import { REITCalculatorSummary } from './reitCalculator';
 
 export function calculate401k(inputs: K401Inputs): { results: YearlyResult[]; summary: REITCalculatorSummary } {
-  const { initialBalance, annualSalary, employeeContributionPct, employerMatchPct, annualSalaryGrowthRate, annualReturnRate, years } = inputs;
+  const { initialBalance, annualSalary, employeeContributionPct, employerMatchPct, annualSalaryGrowthRate, annualReturnRate, taxRate, years } = inputs;
   let balance = initialBalance;
   let salary = annualSalary;
   let totalContributions = initialBalance;
@@ -39,16 +40,18 @@ export function calculate401k(inputs: K401Inputs): { results: YearlyResult[]; su
     salary *= 1 + annualSalaryGrowthRate / 100;
   }
   const final = results[results.length - 1];
-  const annualizedReturn = initialBalance > 0 ? (Math.pow(final.totalValue / initialBalance, 1 / years) - 1) * 100 : 0;
+  const afterTax = final.totalValue * (1 - taxRate / 100);
+  const roiAfterTax = totalContributions > 0 ? ((afterTax - totalContributions) / totalContributions) * 100 : 0;
+  const annualizedReturn = initialBalance > 0 ? (Math.pow(afterTax / initialBalance, 1 / years) - 1) * 100 : 0;
   const summary: REITCalculatorSummary = {
     propertyCount: 0,
-    portfolioValue: final.totalValue,
-    netEquity: final.netEquity,
+    portfolioValue: afterTax,
+    netEquity: afterTax,
     totalDebt: 0,
-    roi: final.roi,
+    roi: roiAfterTax,
     cashExtracted: totalContributions,
     annualizedReturn,
-    equityMultiple: totalContributions > 0 ? final.totalValue / totalContributions : 0,
+    equityMultiple: totalContributions > 0 ? afterTax / totalContributions : 0,
     years,
   };
   return { results, summary };

@@ -8,16 +8,18 @@ export interface BrokerageFormProps {
 
 const BrokerageForm: React.FC<BrokerageFormProps> = ({ onSubmit, initialData }) => {
   const [formData, setFormData] = React.useState({
-    initialBalance: initialData?.initialBalance ?? 0,
-    annualContribution: initialData?.annualContribution ?? 10000,
+    initialBalance: initialData?.initialBalance ?? 1000,
+    contributionAmount: initialData?.contributionAmount ?? 1000,
+    contributionFrequency: initialData?.contributionFrequency ?? 'annual',
     annualReturnRate: initialData?.annualReturnRate ?? 7,
+    taxRate: initialData?.taxRate ?? 15,
     years: initialData?.years ?? 30,
   });
 
   const handleChange = (field: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value === '' ? '' : Number(value)
+      [field]: field === 'contributionFrequency' ? value : (value === '' ? '' : Number(value))
     }));
   };
 
@@ -52,17 +54,28 @@ const BrokerageForm: React.FC<BrokerageFormProps> = ({ onSubmit, initialData }) 
           <label className={labelClasses}>
             <div className="flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-green-400" />
-              Annual Contribution
+              Contribution Amount
             </div>
           </label>
           <input
             type="number"
-            value={formData.annualContribution}
-            onChange={e => handleChange('annualContribution', e.target.value)}
+            value={formData.contributionAmount}
+            onChange={e => handleChange('contributionAmount', e.target.value)}
             className={inputClasses}
             step="100"
             min="0"
           />
+        </div>
+        <div>
+          <label className={labelClasses}>Frequency</label>
+          <select
+            value={formData.contributionFrequency}
+            onChange={e => handleChange('contributionFrequency', e.target.value)}
+            className={inputClasses}
+          >
+            <option value="annual">Annual</option>
+            <option value="monthly">Monthly</option>
+          </select>
         </div>
         <div>
           <label className={labelClasses}>
@@ -78,6 +91,23 @@ const BrokerageForm: React.FC<BrokerageFormProps> = ({ onSubmit, initialData }) 
             className={inputClasses}
             step="0.1"
             min="0"
+          />
+        </div>
+        <div>
+          <label className={labelClasses}>
+            <div className="flex items-center gap-2">
+              <Percent className="w-4 h-4 text-purple-400" />
+              Tax Rate %
+            </div>
+          </label>
+          <input
+            type="number"
+            value={formData.taxRate}
+            onChange={e => handleChange('taxRate', e.target.value)}
+            className={inputClasses}
+            step="0.1"
+            min="0"
+            max="100"
           />
         </div>
         <div>
