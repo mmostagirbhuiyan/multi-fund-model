@@ -289,7 +289,11 @@ function App() {
                       ? 'REIT'
                       : calculatorType === 'roth'
                       ? 'Roth IRA'
-                      : '401k'}
+                      : calculatorType === 'k401'
+                      ? '401k'
+                      : calculatorType === 'brokerage'
+                      ? 'Brokerage'
+                      : 'HSA'}
                   </span>
                   <br />
                   <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
@@ -354,6 +358,22 @@ function App() {
                     <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
                       <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
                       <span className="text-slate-300">Compounding Returns</span>
+                    </div>
+                  </>
+                )}
+                {calculatorType === 'brokerage' && (
+                  <>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-slate-300">Tax-Efficient Investing</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                      <span className="text-slate-300">Capital Gains Management</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                      <span className="text-slate-300">Dividend Reinvestment</span>
                     </div>
                   </>
                 )}
