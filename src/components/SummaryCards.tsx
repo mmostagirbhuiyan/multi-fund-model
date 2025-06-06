@@ -11,10 +11,12 @@ export interface SummaryCardsProps {
     annualizedReturn: number;
     equityMultiple: number;
   };
+  calculatorType: 'reit' | 'roth';
 }
 
-const SummaryCards: React.FC<SummaryCardsProps> = ({ results }) => {
-  const cardData = [
+const SummaryCards: React.FC<SummaryCardsProps> = ({ results, calculatorType }) => {
+  const isREIT = calculatorType === 'reit';
+  const cardData = isREIT ? [
     {
       title: 'Total Properties',
       value: results.propertyCount,
@@ -70,6 +72,47 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ results }) => {
       icon: Activity,
       gradient: 'from-rose-500 to-pink-600',
       description: 'Equity growth multiple'
+    }
+  ] : [
+    {
+      title: 'Account Balance',
+      value: results.portfolioValue,
+      format: (val: number) => `$${(val / 1000000).toFixed(1)}M`,
+      icon: DollarSign,
+      gradient: 'from-green-500 to-emerald-600',
+      description: 'Projected value'
+    },
+    {
+      title: 'Total Contributions',
+      value: results.cashExtracted,
+      format: (val: number) => `$${(val / 1000000).toFixed(1)}M`,
+      icon: Wallet,
+      gradient: 'from-cyan-500 to-blue-600',
+      description: 'Invested capital'
+    },
+    {
+      title: 'Total ROI',
+      value: results.roi,
+      format: (val: number) => `${val.toFixed(0)}%`,
+      icon: Percent,
+      gradient: 'from-yellow-500 to-orange-600',
+      description: 'Return on investment'
+    },
+    {
+      title: 'Annualized Return',
+      value: results.annualizedReturn,
+      format: (val: number) => `${val.toFixed(1)}%`,
+      icon: ArrowUpRight,
+      gradient: 'from-indigo-500 to-violet-600',
+      description: 'Yearly return rate'
+    },
+    {
+      title: 'Equity Multiple',
+      value: results.equityMultiple,
+      format: (val: number) => typeof val === 'number' && !isNaN(val) ? `${val.toFixed(2)}x` : 'N/A',
+      icon: Activity,
+      gradient: 'from-rose-500 to-pink-600',
+      description: 'Growth multiple'
     }
   ];
 
