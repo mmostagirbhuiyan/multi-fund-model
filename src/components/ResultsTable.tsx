@@ -16,7 +16,7 @@ export interface YearlyResult {
 
 export interface ResultsTableProps {
   results: YearlyResult[];
-  calculatorType: 'reit' | 'roth';
+  calculatorType: 'reit' | 'roth' | 'k401';
 }
 
 type Order = 'asc' | 'desc';

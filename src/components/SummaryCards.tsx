@@ -11,7 +11,7 @@ export interface SummaryCardsProps {
     annualizedReturn: number;
     equityMultiple: number;
   };
-  calculatorType: 'reit' | 'roth';
+  calculatorType: 'reit' | 'roth' | 'k401';
 }
 
 const SummaryCards: React.FC<SummaryCardsProps> = ({ results, calculatorType }) => {

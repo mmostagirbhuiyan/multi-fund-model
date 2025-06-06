@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import { Building2, Calculator, ChartBar, TrendingUp, ChevronDown, ChevronUp, Info, Zap, Activity } from 'lucide-react';
 import CalculatorForm from './components/CalculatorForm';
 import RothIRAForm from './components/RothIRAForm';
+import K401Form from './components/K401Form';
 import PortfolioChart from './components/PortfolioChart';
 import SummaryCards from './components/SummaryCards';
 import ResultsTable from './components/ResultsTable';
 import { calculateREIT } from './logic/reitCalculator';
 import { calculateRothIRA } from './logic/rothCalculator';
+import { calculate401k } from './logic/k401Calculator';
 
 function App() {
   const [results, setResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const [calculatorType, setCalculatorType] = useState<'reit' | 'roth'>('reit');
+  const [calculatorType, setCalculatorType] = useState<'reit' | 'roth' | 'k401'>('reit');
   const [reitFormData, setReitFormData] = useState<any>({
     downPayment: 20,
     mortgageRate: 5.5,
@@ -35,6 +37,14 @@ function App() {
     initialBalance: 0,
     annualContribution: 6500,
     annualGrowthRate: 7,
+  });
+  const [k401FormData, setK401FormData] = useState<any>({
+    initialBalance: 0,
+    annualSalary: 60000,
+    employeeContributionPct: 6,
+    employerMatchPct: 50,
+    annualSalaryGrowthRate: 3,
+    annualReturnRate: 7,
   });
 
   const handleCalculate = async (newFormData: any) => {
@@ -61,9 +71,30 @@ function App() {
           },
           detailedAnalysis: calculatedResults.results,
         });
-      } else {
+      } else if (calculatorType === 'roth') {
         setRothFormData(newFormData);
         const calculatedResults = calculateRothIRA(newFormData);
+        setResults({
+          ...calculatedResults.summary,
+          portfolioMetrics: {
+            portfolioComposition: {
+              labels: ['Balance', 'Debt'],
+              values: [calculatedResults.summary.netEquity, 0],
+            },
+            annualCashFlow: {
+              labels: calculatedResults.results.map(r => `Year ${r.year}`),
+              values: calculatedResults.results.map(r => r.annualCashFlow),
+            },
+            equityGrowth: {
+              labels: calculatedResults.results.map(r => `Year ${r.year}`),
+              values: calculatedResults.results.map(r => r.netEquity),
+            },
+          },
+          detailedAnalysis: calculatedResults.results,
+        });
+      } else {
+        setK401FormData(newFormData);
+        const calculatedResults = calculate401k(newFormData);
         setResults({
           ...calculatedResults.summary,
           portfolioMetrics: {
@@ -107,7 +138,11 @@ function App() {
             </div>
             
             <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
-              {calculatorType === 'reit' ? 'Calculating REIT Metrics' : 'Calculating Roth IRA Growth'}
+              {calculatorType === 'reit'
+                ? 'Calculating REIT Metrics'
+                : calculatorType === 'roth'
+                ? 'Calculating Roth IRA Growth'
+                : 'Calculating 401k Growth'}
             </h2>
             <p className="text-slate-300 text-lg mb-4">Analyzing 30-year portfolio performance...</p>
             
@@ -138,7 +173,11 @@ function App() {
             <div className="inline-flex items-center gap-2 bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-full px-6 py-3 mb-8 shadow-lg">
               <Building2 className="w-5 h-5 text-blue-400" />
               <span className="text-white font-medium">
-                {calculatorType === 'reit' ? 'Advanced REIT Modeling' : 'Roth IRA Growth Calculator'}
+                {calculatorType === 'reit'
+                  ? 'Advanced REIT Modeling'
+                  : calculatorType === 'roth'
+                  ? 'Roth IRA Growth Calculator'
+                  : '401k Growth Calculator'}
               </span>
               <div className="flex items-center ml-2">
                 <Zap className="w-4 h-4 text-yellow-400 animate-pulse mr-1" />
@@ -160,7 +199,11 @@ function App() {
               <div className="text-left">
                 <h1 className="text-7xl md:text-8xl font-black leading-none">
                   <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                    {calculatorType === 'reit' ? 'REIT' : 'Roth IRA'}
+                    {calculatorType === 'reit'
+                      ? 'REIT'
+                      : calculatorType === 'roth'
+                      ? 'Roth IRA'
+                      : '401k'}
                   </span>
                   <br />
                   <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
@@ -174,22 +217,60 @@ function App() {
               <p className="text-2xl text-slate-300 leading-relaxed">
                 {calculatorType === 'reit'
                   ? 'Professional-grade modeling for Real Estate Investment Trust portfolios'
-                  : 'Long-term projection of tax-free retirement savings'}
+                  : calculatorType === 'roth'
+                  ? 'Long-term projection of tax-free retirement savings'
+                  : 'Retirement account growth with employer matching'}
               </p>
               
               <div className="flex flex-wrap justify-center gap-4 text-sm">
-                <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span className="text-slate-300">Cash-out Refinancing</span>
-                </div>
-                <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                  <span className="text-slate-300">1031 Exchanges</span>
-                </div>
-                <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
-                  <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                  <span className="text-slate-300">Rental Yield Analysis</span>
-                </div>
+                {calculatorType === 'reit' && (
+                  <>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-slate-300">Cash-out Refinancing</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                      <span className="text-slate-300">1031 Exchanges</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                      <span className="text-slate-300">Rental Yield Analysis</span>
+                    </div>
+                  </>
+                )}
+                {calculatorType === 'roth' && (
+                  <>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-slate-300">Tax-Free Growth</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                      <span className="text-slate-300">Consistent Contributions</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                      <span className="text-slate-300">Compound Interest</span>
+                    </div>
+                  </>
+                )}
+                {calculatorType === 'k401' && (
+                  <>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-slate-300">Employer Matching</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                      <span className="text-slate-300">Salary Growth</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                      <span className="text-slate-300">Compounding Returns</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -209,6 +290,12 @@ function App() {
               >
                 Roth IRA
               </button>
+              <button
+                onClick={() => setCalculatorType('k401')}
+                className={`px-4 py-2 rounded-full border ${calculatorType === 'k401' ? 'bg-blue-600 border-blue-600' : 'bg-slate-700 border-slate-600'}`}
+              >
+                401k
+              </button>
             </div>
             <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
               <div className="flex items-center gap-3 mb-6">
@@ -218,14 +305,20 @@ function App() {
                 <div>
                   <h2 className="text-2xl font-bold text-white">Investment Calculator</h2>
                   <p className="text-slate-400">
-                    {calculatorType === 'reit' ? 'Configure your REIT portfolio parameters' : 'Configure your Roth IRA inputs'}
+                    {calculatorType === 'reit'
+                      ? 'Configure your REIT portfolio parameters'
+                      : calculatorType === 'roth'
+                      ? 'Configure your Roth IRA inputs'
+                      : 'Configure your 401k assumptions'}
                   </p>
                 </div>
               </div>
               {calculatorType === 'reit' ? (
                 <CalculatorForm onSubmit={handleCalculate} initialData={reitFormData} />
-              ) : (
+              ) : calculatorType === 'roth' ? (
                 <RothIRAForm onSubmit={handleCalculate} initialData={rothFormData} />
+              ) : (
+                <K401Form onSubmit={handleCalculate} initialData={k401FormData} />
               )}
             </div>
           </div>
@@ -332,8 +425,8 @@ function App() {
                       </h3>
                       
                       <p className="text-slate-300 mb-6 text-lg leading-relaxed">
-                        Our comprehensive REIT analysis model incorporates sophisticated financial modeling techniques 
-                        to evaluate portfolio performance across multiple dimensions and risk factors.
+                        Our modeling framework incorporates sophisticated financial techniques
+                        to evaluate a wide range of investment strategies across multiple dimensions and risk factors.
                       </p>
                       
                       <div className="grid md:grid-cols-2 gap-6">
@@ -364,15 +457,15 @@ function App() {
                           <ul className="space-y-3 text-slate-300">
                             <li className="flex items-start gap-3">
                               <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0"></div>
-                              <span>Cash-out refinancing with closing costs</span>
+                              <span>Scenario-based projections</span>
                             </li>
                             <li className="flex items-start gap-3">
                               <div className="w-2 h-2 bg-pink-400 rounded-full mt-2 flex-shrink-0"></div>
-                              <span>1031 tax-deferred exchanges</span>
+                              <span>Tax optimization modeling</span>
                             </li>
                             <li className="flex items-start gap-3">
                               <div className="w-2 h-2 bg-orange-400 rounded-full mt-2 flex-shrink-0"></div>
-                              <span>Detailed rental yield calculations</span>
+                              <span>Contribution & withdrawal strategies</span>
                             </li>
                             <li className="flex items-start gap-3">
                               <div className="w-2 h-2 bg-red-400 rounded-full mt-2 flex-shrink-0"></div>
