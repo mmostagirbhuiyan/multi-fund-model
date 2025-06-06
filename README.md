@@ -2,6 +2,8 @@
 
 A professional, interactive platform for modeling a variety of long-term investment strategies. It includes calculators for REIT portfolios, Roth IRA accounts, and detailed 401k growth projections, all wrapped in a clean and modern interface.
 
+[![Build and Deploy](https://github.com/mmostagirbhuiyan/multi-fund-model/actions/workflows/deploy.yml/badge.svg)](https://github.com/mmostagirbhuiyan/multi-fund-model/actions/workflows/deploy.yml)
+
 ## Features
 - Adjustable multi-year projections with monthly granularity.
 - Real estate modeling with cash-out refinancing and 1031 exchanges.
