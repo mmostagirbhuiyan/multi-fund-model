@@ -12,6 +12,7 @@ A professional, interactive platform for modeling a variety of long-term investm
 - Year-by-year breakdown of portfolio performance and cash flows.
 - Interactive charts for asset allocation, contributions, and equity growth.
 - Modern and responsive user interface built with React and Tailwind CSS.
+- Installable Progressive Web App (PWA) for offline use.
 - Tax-free Roth IRA growth projections with simplified inputs.
 
 ## Technology Stack
