@@ -37,26 +37,34 @@ function App() {
     years: 30,
   });
   const [rothFormData, setRothFormData] = useState<any>({
-    initialBalance: 0,
+    initialBalance: 1000,
     annualContribution: 6500,
     annualGrowthRate: 7,
+    taxRate: 0,
     years: 30,
   });
   const [k401FormData, setK401FormData] = useState<any>({
-    initialBalance: 0,
+    initialBalance: 1000,
     annualSalary: 60000,
     employeeContributionPct: 6,
     employerMatchPct: 50,
     annualSalaryGrowthRate: 3,
     annualReturnRate: 7,
+    taxRate: 20,
     years: 30,
   });
   const [brokerageFormData, setBrokerageFormData] = useState<any>({
-    initialBalance: 0,
-    annualContribution: 10000,
+    initialBalance: 1000,
+    contributionAmount: 1000,
+    contributionFrequency: 'annual',
     annualReturnRate: 7,
+    taxRate: 15,
     years: 30,
   });
+
+  React.useEffect(() => {
+    setResults(null);
+  }, [calculatorType]);
 
   const currentYears =
     calculatorType === 'reit'
@@ -98,8 +106,8 @@ function App() {
           ...calculatedResults.summary,
           portfolioMetrics: {
             portfolioComposition: {
-              labels: ['Balance', 'Debt'],
-              values: [calculatedResults.summary.netEquity, 0],
+              labels: ['Final Balance', 'Total Contributions'],
+              values: [calculatedResults.summary.netEquity, calculatedResults.summary.cashExtracted],
             },
             annualCashFlow: {
               labels: calculatedResults.results.map(r => `Year ${r.year}`),
@@ -119,8 +127,8 @@ function App() {
           ...calculatedResults.summary,
           portfolioMetrics: {
             portfolioComposition: {
-              labels: ['Balance', 'Debt'],
-              values: [calculatedResults.summary.netEquity, 0],
+              labels: ['Final Balance', 'Total Contributions'],
+              values: [calculatedResults.summary.netEquity, calculatedResults.summary.cashExtracted],
             },
             annualCashFlow: {
               labels: calculatedResults.results.map(r => `Year ${r.year}`),
@@ -140,8 +148,8 @@ function App() {
           ...calculatedResults.summary,
           portfolioMetrics: {
             portfolioComposition: {
-              labels: ['Balance', 'Debt'],
-              values: [calculatedResults.summary.netEquity, 0],
+              labels: ['Final Balance', 'Total Contributions'],
+              values: [calculatedResults.summary.netEquity, calculatedResults.summary.cashExtracted],
             },
             annualCashFlow: {
               labels: calculatedResults.results.map(r => `Year ${r.year}`),
