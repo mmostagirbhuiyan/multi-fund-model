@@ -2,7 +2,6 @@ export interface RothIRAInputs {
   initialBalance: number;
   annualContribution: number;
   annualGrowthRate: number; // percent
-  taxRate: number; // percent
   years: number;
 }
 
@@ -10,7 +9,7 @@ import { YearlyResult } from '../components/ResultsTable';
 import { REITCalculatorSummary } from './reitCalculator';
 
 export function calculateRothIRA(inputs: RothIRAInputs): { results: YearlyResult[]; summary: REITCalculatorSummary } {
-  const { initialBalance, annualContribution, annualGrowthRate, taxRate, years } = inputs;
+  const { initialBalance, annualContribution, annualGrowthRate, years } = inputs;
   let balance = initialBalance;
   let totalContributions = initialBalance;
   const results: YearlyResult[] = [];
@@ -32,7 +31,7 @@ export function calculateRothIRA(inputs: RothIRAInputs): { results: YearlyResult
     });
   }
   const final = results[results.length - 1];
-  const afterTax = final.totalValue * (1 - taxRate / 100);
+  const afterTax = final.totalValue;
   const roiAfterTax = totalContributions > 0 ? ((afterTax - totalContributions) / totalContributions) * 100 : 0;
   const annualizedReturn = initialBalance > 0 ? (Math.pow(afterTax / initialBalance, 1 / years) - 1) * 100 : 0;
   const summary: REITCalculatorSummary = {

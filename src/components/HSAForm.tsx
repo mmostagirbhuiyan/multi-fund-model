@@ -1,15 +1,16 @@
 import React from 'react';
-import { DollarSign, Percent, Calendar } from 'lucide-react';
+import { DollarSign, Percent, Calendar, Stethoscope } from 'lucide-react';
 
-export interface RothIRAFormProps {
+export interface HSAFormProps {
   onSubmit: (formData: any) => void;
   initialData?: any;
 }
 
-const RothIRAForm: React.FC<RothIRAFormProps> = ({ onSubmit, initialData }) => {
+const HSAForm: React.FC<HSAFormProps> = ({ onSubmit, initialData }) => {
   const [formData, setFormData] = React.useState({
     initialBalance: initialData?.initialBalance ?? 1000,
-    annualContribution: initialData?.annualContribution ?? 6500,
+    annualContribution: initialData?.annualContribution ?? 3600,
+    annualMedicalExpenses: initialData?.annualMedicalExpenses ?? 0,
     annualGrowthRate: initialData?.annualGrowthRate ?? 7,
     years: initialData?.years ?? 30,
   });
@@ -67,6 +68,22 @@ const RothIRAForm: React.FC<RothIRAFormProps> = ({ onSubmit, initialData }) => {
         <div>
           <label className={labelClasses}>
             <div className="flex items-center gap-2">
+              <Stethoscope className="w-4 h-4 text-red-400" />
+              Annual Medical Expenses
+            </div>
+          </label>
+          <input
+            type="number"
+            value={formData.annualMedicalExpenses}
+            onChange={e => handleChange('annualMedicalExpenses', e.target.value)}
+            className={inputClasses}
+            step="100"
+            min="0"
+          />
+        </div>
+        <div>
+          <label className={labelClasses}>
+            <div className="flex items-center gap-2">
               <Percent className="w-4 h-4 text-blue-400" />
               Annual Growth Rate
             </div>
@@ -107,4 +124,5 @@ const RothIRAForm: React.FC<RothIRAFormProps> = ({ onSubmit, initialData }) => {
   );
 };
 
-export default RothIRAForm;
+export default HSAForm;
+

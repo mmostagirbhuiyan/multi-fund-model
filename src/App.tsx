@@ -4,6 +4,7 @@ import CalculatorForm from './components/CalculatorForm';
 import RothIRAForm from './components/RothIRAForm';
 import K401Form from './components/K401Form';
 import BrokerageForm from './components/BrokerageForm';
+import HSAForm from './components/HSAForm';
 import PortfolioChart from './components/PortfolioChart';
 import SummaryCards from './components/SummaryCards';
 import ResultsTable from './components/ResultsTable';
@@ -11,12 +12,13 @@ import { calculateREIT } from './logic/reitCalculator';
 import { calculateRothIRA } from './logic/rothCalculator';
 import { calculate401k } from './logic/k401Calculator';
 import { calculateBrokerage } from './logic/brokerageCalculator';
+import { calculateHSA } from './logic/hsaCalculator';
 
 function App() {
   const [results, setResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const [calculatorType, setCalculatorType] = useState<'reit' | 'roth' | 'k401' | 'brokerage'>('reit');
+  const [calculatorType, setCalculatorType] = useState<'reit' | 'roth' | 'k401' | 'brokerage' | 'hsa'>('reit');
   const [reitFormData, setReitFormData] = useState<any>({
     downPayment: 20,
     mortgageRate: 5.5,
@@ -40,7 +42,6 @@ function App() {
     initialBalance: 1000,
     annualContribution: 6500,
     annualGrowthRate: 7,
-    taxRate: 0,
     years: 30,
   });
   const [k401FormData, setK401FormData] = useState<any>({
@@ -61,6 +62,13 @@ function App() {
     taxRate: 15,
     years: 30,
   });
+  const [hsaFormData, setHsaFormData] = useState<any>({
+    initialBalance: 1000,
+    annualContribution: 3600,
+    annualMedicalExpenses: 0,
+    annualGrowthRate: 7,
+    years: 30,
+  });
 
   React.useEffect(() => {
     setResults(null);
@@ -73,7 +81,9 @@ function App() {
       ? rothFormData.years
       : calculatorType === 'k401'
       ? k401FormData.years
-      : brokerageFormData.years;
+      : calculatorType === 'brokerage'
+      ? brokerageFormData.years
+      : hsaFormData.years;
 
   const handleCalculate = async (newFormData: any) => {
     setIsLoading(true);
@@ -123,6 +133,27 @@ function App() {
       } else if (calculatorType === 'brokerage') {
         setBrokerageFormData(newFormData);
         const calculatedResults = calculateBrokerage(newFormData);
+        setResults({
+          ...calculatedResults.summary,
+          portfolioMetrics: {
+            portfolioComposition: {
+              labels: ['Final Balance', 'Total Contributions'],
+              values: [calculatedResults.summary.netEquity, calculatedResults.summary.cashExtracted],
+            },
+            annualCashFlow: {
+              labels: calculatedResults.results.map(r => `Year ${r.year}`),
+              values: calculatedResults.results.map(r => r.annualCashFlow),
+            },
+            equityGrowth: {
+              labels: calculatedResults.results.map(r => `Year ${r.year}`),
+              values: calculatedResults.results.map(r => r.netEquity),
+            },
+          },
+          detailedAnalysis: calculatedResults.results,
+        });
+      } else if (calculatorType === 'hsa') {
+        setHsaFormData(newFormData);
+        const calculatedResults = calculateHSA(newFormData);
         setResults({
           ...calculatedResults.summary,
           portfolioMetrics: {
@@ -193,7 +224,9 @@ function App() {
                 ? 'Calculating Roth IRA Growth'
                 : calculatorType === 'k401'
                 ? 'Calculating 401k Growth'
-                : 'Calculating Brokerage Growth'}
+                : calculatorType === 'brokerage'
+                ? 'Calculating Brokerage Growth'
+                : 'Calculating HSA Growth'}
             </h2>
             <p className="text-slate-300 text-lg mb-4">Analyzing {currentYears}-year portfolio performance...</p>
             
@@ -324,6 +357,22 @@ function App() {
                     </div>
                   </>
                 )}
+                {calculatorType === 'hsa' && (
+                  <>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-slate-300">Tax-Free Savings</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                      <span className="text-slate-300">Medical Withdrawals</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-slate-800/30 rounded-full px-4 py-2">
+                      <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                      <span className="text-slate-300">Investment Growth</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -355,6 +404,12 @@ function App() {
             >
               Brokerage
             </button>
+            <button
+              onClick={() => setCalculatorType('hsa')}
+              className={`px-4 py-2 rounded-full border ${calculatorType === 'hsa' ? 'bg-blue-600 border-blue-600' : 'bg-slate-700 border-slate-600'}`}
+            >
+              HSA
+            </button>
           </div>
             <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
               <div className="flex items-center gap-3 mb-6">
@@ -370,7 +425,9 @@ function App() {
                       ? 'Configure your Roth IRA inputs'
                       : calculatorType === 'k401'
                       ? 'Configure your 401k assumptions'
-                      : 'Configure your brokerage account'}
+                      : calculatorType === 'brokerage'
+                      ? 'Configure your brokerage account'
+                      : 'Configure your HSA inputs'}
                   </p>
                 </div>
               </div>
@@ -380,8 +437,10 @@ function App() {
                 <RothIRAForm onSubmit={handleCalculate} initialData={rothFormData} />
               ) : calculatorType === 'k401' ? (
                 <K401Form onSubmit={handleCalculate} initialData={k401FormData} />
-              ) : (
+              ) : calculatorType === 'brokerage' ? (
                 <BrokerageForm onSubmit={handleCalculate} initialData={brokerageFormData} />
+              ) : (
+                <HSAForm onSubmit={handleCalculate} initialData={hsaFormData} />
               )}
             </div>
           </div>
