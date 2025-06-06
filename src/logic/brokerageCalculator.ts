@@ -13,7 +13,7 @@ export interface BrokerageInputs {
 export function calculateBrokerage(inputs: BrokerageInputs): { results: YearlyResult[]; summary: REITCalculatorSummary } {
   const { initialBalance, contributionAmount, contributionFrequency, annualReturnRate, taxRate, years } = inputs;
   let balance = initialBalance;
-  let totalContributions = initialBalance;
+  let totalContributions = 0;
   const results: YearlyResult[] = [];
 
   if (contributionFrequency === 'monthly') {
@@ -23,7 +23,8 @@ export function calculateBrokerage(inputs: BrokerageInputs): { results: YearlyRe
       totalContributions += contributionAmount;
       if (month % 12 === 0) {
         const year = month / 12;
-        const roi = totalContributions > 0 ? ((balance - totalContributions) / totalContributions) * 100 : 0;
+        const invested = initialBalance + totalContributions;
+        const roi = invested > 0 ? ((balance - invested) / invested) * 100 : 0;
         results.push({
           year,
           propertyCount: 0,
@@ -32,7 +33,7 @@ export function calculateBrokerage(inputs: BrokerageInputs): { results: YearlyRe
           totalDebt: 0,
           netEquity: balance,
           annualCashFlow: contributionAmount * 12,
-          cashBalance: totalContributions,
+          cashBalance: initialBalance + totalContributions,
           totalDebtService: 0,
           roi,
         });
@@ -42,7 +43,8 @@ export function calculateBrokerage(inputs: BrokerageInputs): { results: YearlyRe
     for (let year = 1; year <= years; year++) {
       balance = (balance + contributionAmount) * (1 + annualReturnRate / 100);
       totalContributions += contributionAmount;
-      const roi = totalContributions > 0 ? ((balance - totalContributions) / totalContributions) * 100 : 0;
+      const invested = initialBalance + totalContributions;
+      const roi = invested > 0 ? ((balance - invested) / invested) * 100 : 0;
       results.push({
         year,
         propertyCount: 0,
@@ -51,7 +53,7 @@ export function calculateBrokerage(inputs: BrokerageInputs): { results: YearlyRe
         totalDebt: 0,
         netEquity: balance,
         annualCashFlow: contributionAmount,
-        cashBalance: totalContributions,
+        cashBalance: initialBalance + totalContributions,
         totalDebtService: 0,
         roi,
       });
@@ -60,7 +62,8 @@ export function calculateBrokerage(inputs: BrokerageInputs): { results: YearlyRe
 
   const final = results[results.length - 1];
   const afterTax = balance * (1 - taxRate / 100);
-  const roi = totalContributions > 0 ? ((afterTax - totalContributions) / totalContributions) * 100 : 0;
+  const totalInvested = initialBalance + totalContributions;
+  const roi = totalInvested > 0 ? ((afterTax - totalInvested) / totalInvested) * 100 : 0;
   const annualizedReturn = initialBalance > 0 ? (Math.pow(afterTax / initialBalance, 1 / years) - 1) * 100 : 0;
   const summary: REITCalculatorSummary = {
     propertyCount: 0,
@@ -70,7 +73,7 @@ export function calculateBrokerage(inputs: BrokerageInputs): { results: YearlyRe
     roi,
     cashExtracted: totalContributions,
     annualizedReturn,
-    equityMultiple: totalContributions > 0 ? afterTax / totalContributions : 0,
+    equityMultiple: totalInvested > 0 ? afterTax / totalInvested : 0,
     years,
   };
 
