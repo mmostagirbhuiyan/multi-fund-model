@@ -11,6 +11,7 @@ const RothIRAForm: React.FC<RothIRAFormProps> = ({ onSubmit, initialData }) => {
     initialBalance: initialData?.initialBalance ?? 0,
     annualContribution: initialData?.annualContribution ?? 6500,
     annualGrowthRate: initialData?.annualGrowthRate ?? 7,
+    years: initialData?.years ?? 30,
   });
 
   const handleChange = (field: string, value: string | number) => {
@@ -77,6 +78,22 @@ const RothIRAForm: React.FC<RothIRAFormProps> = ({ onSubmit, initialData }) => {
             className={inputClasses}
             step="0.1"
             min="0"
+          />
+        </div>
+        <div>
+          <label className={labelClasses}>
+            <div className="flex items-center gap-2">
+              <Percent className="w-4 h-4 text-cyan-400" />
+              Projection Years
+            </div>
+          </label>
+          <input
+            type="number"
+            value={formData.years}
+            onChange={e => handleChange('years', e.target.value)}
+            className={inputClasses}
+            step="1"
+            min="1"
           />
         </div>
       </div>

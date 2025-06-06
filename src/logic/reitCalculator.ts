@@ -17,6 +17,7 @@ export interface REITCalculatorInputs {
   managementFeeRate: number;
   vacancyRate: number;
   netRentalYield: number;
+  years: number;
 }
 
 export interface REITCalculatorSummary {
@@ -28,6 +29,7 @@ export interface REITCalculatorSummary {
   cashExtracted: number;
   annualizedReturn: number;
   equityMultiple: number;
+  years: number;
 }
 
 function calculateMonthlyPayment(principal: number, rate: number, years: number): number {
@@ -61,6 +63,7 @@ export function calculateREIT(inputs: REITCalculatorInputs): {
   const refiCostsPct = inputs.refiCosts / 100;
   const incomeTaxRate = inputs.incomeTaxRate / 100;
   const yieldMode = inputs.yieldMode;
+  const years = inputs.years;
 
   let netRentalYield: number;
   let grossRentalYield = 0, propertyTaxRate = 0, maintenanceRate = 0, insuranceRate = 0, managementFeeRate = 0, vacancyRate = 0;
@@ -119,8 +122,8 @@ export function calculateREIT(inputs: REITCalculatorInputs): {
     basis: initialPropertyValue
   });
 
-  // Simulate 360 months (30 years)
-  for (let month = 1; month <= 360; month++) {
+  // Simulate the specified number of months
+  for (let month = 1; month <= years * 12; month++) {
     const year = Math.floor((month - 1) / 12) + 1;
     properties.forEach(property => {
       property.currentValue *= (1 + monthlyAppreciation);
@@ -243,7 +246,7 @@ export function calculateREIT(inputs: REITCalculatorInputs): {
   const totalReturns = finalResult.netEquity + finalResult.cashBalance - totalInvestment;
   const finalValue = finalResult.netEquity + finalResult.cashBalance;
   const annualizedReturn = initialInvestment > 0 ?
-    (Math.pow(finalValue / initialInvestment, 1 / 30) - 1) * 100 : 0;
+    (Math.pow(finalValue / initialInvestment, 1 / years) - 1) * 100 : 0;
   const summary: REITCalculatorSummary = {
     propertyCount: finalResult.propertyCount,
     portfolioValue: finalResult.totalValue,
@@ -252,7 +255,8 @@ export function calculateREIT(inputs: REITCalculatorInputs): {
     roi: totalInvestment > 0 ? ((finalResult.netEquity + finalResult.cashBalance - totalInvestment) / totalInvestment) * 100 : 0,
     cashExtracted: totalRefiCashOut,
     annualizedReturn: annualizedReturn,
-    equityMultiple: initialCash > 0 ? (finalResult.netEquity + finalResult.cashBalance) / initialCash : 0
+    equityMultiple: initialCash > 0 ? (finalResult.netEquity + finalResult.cashBalance) / initialCash : 0,
+    years
   };
   return { results, summary };
 } 

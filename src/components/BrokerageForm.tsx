@@ -1,18 +1,15 @@
 import React from 'react';
 import { DollarSign, Percent } from 'lucide-react';
 
-export interface K401FormProps {
+export interface BrokerageFormProps {
   onSubmit: (formData: any) => void;
   initialData?: any;
 }
 
-const K401Form: React.FC<K401FormProps> = ({ onSubmit, initialData }) => {
+const BrokerageForm: React.FC<BrokerageFormProps> = ({ onSubmit, initialData }) => {
   const [formData, setFormData] = React.useState({
     initialBalance: initialData?.initialBalance ?? 0,
-    annualSalary: initialData?.annualSalary ?? 60000,
-    employeeContributionPct: initialData?.employeeContributionPct ?? 6,
-    employerMatchPct: initialData?.employerMatchPct ?? 50,
-    annualSalaryGrowthRate: initialData?.annualSalaryGrowthRate ?? 3,
+    annualContribution: initialData?.annualContribution ?? 10000,
     annualReturnRate: initialData?.annualReturnRate ?? 7,
     years: initialData?.years ?? 30,
   });
@@ -55,15 +52,15 @@ const K401Form: React.FC<K401FormProps> = ({ onSubmit, initialData }) => {
           <label className={labelClasses}>
             <div className="flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-green-400" />
-              Annual Salary
+              Annual Contribution
             </div>
           </label>
           <input
             type="number"
-            value={formData.annualSalary}
-            onChange={e => handleChange('annualSalary', e.target.value)}
+            value={formData.annualContribution}
+            onChange={e => handleChange('annualContribution', e.target.value)}
             className={inputClasses}
-            step="1000"
+            step="100"
             min="0"
           />
         </div>
@@ -71,56 +68,6 @@ const K401Form: React.FC<K401FormProps> = ({ onSubmit, initialData }) => {
           <label className={labelClasses}>
             <div className="flex items-center gap-2">
               <Percent className="w-4 h-4 text-blue-400" />
-              Employee Contribution %
-            </div>
-          </label>
-          <input
-            type="number"
-            value={formData.employeeContributionPct}
-            onChange={e => handleChange('employeeContributionPct', e.target.value)}
-            className={inputClasses}
-            step="0.1"
-            min="0"
-            max="100"
-          />
-        </div>
-        <div>
-          <label className={labelClasses}>
-            <div className="flex items-center gap-2">
-              <Percent className="w-4 h-4 text-purple-400" />
-              Employer Match %
-            </div>
-          </label>
-          <input
-            type="number"
-            value={formData.employerMatchPct}
-            onChange={e => handleChange('employerMatchPct', e.target.value)}
-            className={inputClasses}
-            step="1"
-            min="0"
-            max="100"
-          />
-        </div>
-        <div>
-          <label className={labelClasses}>
-            <div className="flex items-center gap-2">
-              <Percent className="w-4 h-4 text-cyan-400" />
-              Annual Salary Growth %
-            </div>
-          </label>
-          <input
-            type="number"
-            value={formData.annualSalaryGrowthRate}
-            onChange={e => handleChange('annualSalaryGrowthRate', e.target.value)}
-            className={inputClasses}
-            step="0.1"
-            min="0"
-          />
-        </div>
-        <div>
-          <label className={labelClasses}>
-            <div className="flex items-center gap-2">
-              <Percent className="w-4 h-4 text-teal-400" />
               Annual Return Rate
             </div>
           </label>
@@ -160,4 +107,4 @@ const K401Form: React.FC<K401FormProps> = ({ onSubmit, initialData }) => {
   );
 };
 
-export default K401Form;
+export default BrokerageForm;
