@@ -3,18 +3,20 @@ import { Building2, Calculator, ChartBar, TrendingUp, ChevronDown, ChevronUp, In
 import CalculatorForm from './components/CalculatorForm';
 import RothIRAForm from './components/RothIRAForm';
 import K401Form from './components/K401Form';
+import BrokerageForm from './components/BrokerageForm';
 import PortfolioChart from './components/PortfolioChart';
 import SummaryCards from './components/SummaryCards';
 import ResultsTable from './components/ResultsTable';
 import { calculateREIT } from './logic/reitCalculator';
 import { calculateRothIRA } from './logic/rothCalculator';
 import { calculate401k } from './logic/k401Calculator';
+import { calculateBrokerage } from './logic/brokerageCalculator';
 
 function App() {
   const [results, setResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const [calculatorType, setCalculatorType] = useState<'reit' | 'roth' | 'k401'>('reit');
+  const [calculatorType, setCalculatorType] = useState<'reit' | 'roth' | 'k401' | 'brokerage'>('reit');
   const [reitFormData, setReitFormData] = useState<any>({
     downPayment: 20,
     mortgageRate: 5.5,
@@ -32,11 +34,13 @@ function App() {
     managementFeeRate: 8,
     vacancyRate: 5,
     netRentalYield: 5.5,
+    years: 30,
   });
   const [rothFormData, setRothFormData] = useState<any>({
     initialBalance: 0,
     annualContribution: 6500,
     annualGrowthRate: 7,
+    years: 30,
   });
   const [k401FormData, setK401FormData] = useState<any>({
     initialBalance: 0,
@@ -45,7 +49,23 @@ function App() {
     employerMatchPct: 50,
     annualSalaryGrowthRate: 3,
     annualReturnRate: 7,
+    years: 30,
   });
+  const [brokerageFormData, setBrokerageFormData] = useState<any>({
+    initialBalance: 0,
+    annualContribution: 10000,
+    annualReturnRate: 7,
+    years: 30,
+  });
+
+  const currentYears =
+    calculatorType === 'reit'
+      ? reitFormData.years
+      : calculatorType === 'roth'
+      ? rothFormData.years
+      : calculatorType === 'k401'
+      ? k401FormData.years
+      : brokerageFormData.years;
 
   const handleCalculate = async (newFormData: any) => {
     setIsLoading(true);
@@ -74,6 +94,27 @@ function App() {
       } else if (calculatorType === 'roth') {
         setRothFormData(newFormData);
         const calculatedResults = calculateRothIRA(newFormData);
+        setResults({
+          ...calculatedResults.summary,
+          portfolioMetrics: {
+            portfolioComposition: {
+              labels: ['Balance', 'Debt'],
+              values: [calculatedResults.summary.netEquity, 0],
+            },
+            annualCashFlow: {
+              labels: calculatedResults.results.map(r => `Year ${r.year}`),
+              values: calculatedResults.results.map(r => r.annualCashFlow),
+            },
+            equityGrowth: {
+              labels: calculatedResults.results.map(r => `Year ${r.year}`),
+              values: calculatedResults.results.map(r => r.netEquity),
+            },
+          },
+          detailedAnalysis: calculatedResults.results,
+        });
+      } else if (calculatorType === 'brokerage') {
+        setBrokerageFormData(newFormData);
+        const calculatedResults = calculateBrokerage(newFormData);
         setResults({
           ...calculatedResults.summary,
           portfolioMetrics: {
@@ -142,9 +183,11 @@ function App() {
                 ? 'Calculating REIT Metrics'
                 : calculatorType === 'roth'
                 ? 'Calculating Roth IRA Growth'
-                : 'Calculating 401k Growth'}
+                : calculatorType === 'k401'
+                ? 'Calculating 401k Growth'
+                : 'Calculating Brokerage Growth'}
             </h2>
-            <p className="text-slate-300 text-lg mb-4">Analyzing 30-year portfolio performance...</p>
+            <p className="text-slate-300 text-lg mb-4">Analyzing {currentYears}-year portfolio performance...</p>
             
             <div className="flex items-center justify-center space-x-2 text-sm text-slate-400">
               <Activity className="w-4 h-4 animate-pulse" />
@@ -177,11 +220,13 @@ function App() {
                   ? 'Advanced REIT Modeling'
                   : calculatorType === 'roth'
                   ? 'Roth IRA Growth Calculator'
-                  : '401k Growth Calculator'}
+                  : calculatorType === 'k401'
+                  ? '401k Growth Calculator'
+                  : 'Brokerage Growth Calculator'}
               </span>
               <div className="flex items-center ml-2">
                 <Zap className="w-4 h-4 text-yellow-400 animate-pulse mr-1" />
-                <span className="text-xs text-slate-300">30-Year Analysis</span>
+                <span className="text-xs text-slate-300">{currentYears}-Year Analysis</span>
               </div>
             </div>
             
@@ -290,13 +335,19 @@ function App() {
               >
                 Roth IRA
               </button>
-              <button
-                onClick={() => setCalculatorType('k401')}
-                className={`px-4 py-2 rounded-full border ${calculatorType === 'k401' ? 'bg-blue-600 border-blue-600' : 'bg-slate-700 border-slate-600'}`}
-              >
-                401k
-              </button>
-            </div>
+            <button
+              onClick={() => setCalculatorType('k401')}
+              className={`px-4 py-2 rounded-full border ${calculatorType === 'k401' ? 'bg-blue-600 border-blue-600' : 'bg-slate-700 border-slate-600'}`}
+            >
+              401k
+            </button>
+            <button
+              onClick={() => setCalculatorType('brokerage')}
+              className={`px-4 py-2 rounded-full border ${calculatorType === 'brokerage' ? 'bg-blue-600 border-blue-600' : 'bg-slate-700 border-slate-600'}`}
+            >
+              Brokerage
+            </button>
+          </div>
             <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-600 rounded-2xl flex items-center justify-center">
@@ -309,7 +360,9 @@ function App() {
                       ? 'Configure your REIT portfolio parameters'
                       : calculatorType === 'roth'
                       ? 'Configure your Roth IRA inputs'
-                      : 'Configure your 401k assumptions'}
+                      : calculatorType === 'k401'
+                      ? 'Configure your 401k assumptions'
+                      : 'Configure your brokerage account'}
                   </p>
                 </div>
               </div>
@@ -317,8 +370,10 @@ function App() {
                 <CalculatorForm onSubmit={handleCalculate} initialData={reitFormData} />
               ) : calculatorType === 'roth' ? (
                 <RothIRAForm onSubmit={handleCalculate} initialData={rothFormData} />
-              ) : (
+              ) : calculatorType === 'k401' ? (
                 <K401Form onSubmit={handleCalculate} initialData={k401FormData} />
+              ) : (
+                <BrokerageForm onSubmit={handleCalculate} initialData={brokerageFormData} />
               )}
             </div>
           </div>
@@ -435,7 +490,7 @@ function App() {
                           <ul className="space-y-3 text-slate-300">
                             <li className="flex items-start gap-3">
                               <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
-                              <span>30-year comprehensive financial projections</span>
+                              <span>Long-term comprehensive financial projections</span>
                             </li>
                             <li className="flex items-start gap-3">
                               <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>

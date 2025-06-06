@@ -24,6 +24,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, initialData }
     managementFeeRate: initialData?.managementFeeRate ?? 8,
     vacancyRate: initialData?.vacancyRate ?? 5,
     netRentalYield: initialData?.netRentalYield ?? 4,
+    years: initialData?.years ?? 30,
   });
 
   const handleChange = (field: string, value: string | number) => {
@@ -123,6 +124,23 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, initialData }
               className={inputClasses}
               step="1000"
               min="0"
+            />
+          </div>
+
+          <div>
+            <label className={labelClasses}>
+              <div className="flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-cyan-400" />
+                Projection Years
+              </div>
+            </label>
+            <input
+              type="number"
+              value={formData.years}
+              onChange={(e) => handleChange('years', e.target.value)}
+              className={inputClasses}
+              step="1"
+              min="1"
             />
           </div>
         </div>

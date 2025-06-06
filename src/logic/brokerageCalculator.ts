@@ -1,28 +1,22 @@
-export interface K401Inputs {
+import { YearlyResult } from '../components/ResultsTable';
+import { REITCalculatorSummary } from './reitCalculator';
+
+export interface BrokerageInputs {
   initialBalance: number;
-  annualSalary: number;
-  employeeContributionPct: number; // percent of salary
-  employerMatchPct: number; // percent of employee contribution
-  annualSalaryGrowthRate: number; // percent
+  annualContribution: number;
   annualReturnRate: number; // percent
   years: number;
 }
 
-import { YearlyResult } from '../components/ResultsTable';
-import { REITCalculatorSummary } from './reitCalculator';
-
-export function calculate401k(inputs: K401Inputs): { results: YearlyResult[]; summary: REITCalculatorSummary } {
-  const { initialBalance, annualSalary, employeeContributionPct, employerMatchPct, annualSalaryGrowthRate, annualReturnRate, years } = inputs;
+export function calculateBrokerage(inputs: BrokerageInputs): { results: YearlyResult[]; summary: REITCalculatorSummary } {
+  const { initialBalance, annualContribution, annualReturnRate, years } = inputs;
   let balance = initialBalance;
-  let salary = annualSalary;
   let totalContributions = initialBalance;
   const results: YearlyResult[] = [];
+
   for (let year = 1; year <= years; year++) {
-    const employeeContribution = salary * (employeeContributionPct / 100);
-    const employerContribution = employeeContribution * (employerMatchPct / 100);
-    const totalContribution = employeeContribution + employerContribution;
-    balance = (balance + totalContribution) * (1 + annualReturnRate / 100);
-    totalContributions += totalContribution;
+    balance = (balance + annualContribution) * (1 + annualReturnRate / 100);
+    totalContributions += annualContribution;
     const roi = totalContributions > 0 ? ((balance - totalContributions) / totalContributions) * 100 : 0;
     results.push({
       year,
@@ -31,13 +25,13 @@ export function calculate401k(inputs: K401Inputs): { results: YearlyResult[]; su
       totalValue: balance,
       totalDebt: 0,
       netEquity: balance,
-      annualCashFlow: totalContribution,
+      annualCashFlow: annualContribution,
       cashBalance: totalContributions,
       totalDebtService: 0,
       roi,
     });
-    salary *= 1 + annualSalaryGrowthRate / 100;
   }
+
   const final = results[results.length - 1];
   const annualizedReturn = initialBalance > 0 ? (Math.pow(final.totalValue / initialBalance, 1 / years) - 1) * 100 : 0;
   const summary: REITCalculatorSummary = {
@@ -51,5 +45,6 @@ export function calculate401k(inputs: K401Inputs): { results: YearlyResult[]; su
     equityMultiple: totalContributions > 0 ? final.totalValue / totalContributions : 0,
     years,
   };
+
   return { results, summary };
 }

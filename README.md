@@ -3,9 +3,9 @@
 A professional, interactive platform for modeling a variety of long-term investment strategies. It includes calculators for REIT portfolios, Roth IRA accounts, and detailed 401k growth projections, all wrapped in a clean and modern interface.
 
 ## Features
-- Comprehensive 30-year projections with monthly granularity.
+- Adjustable multi-year projections with monthly granularity.
 - Real estate modeling with cash-out refinancing and 1031 exchanges.
-- Roth IRA and 401k growth calculators with employer matching options.
+- Roth IRA, 401k, and brokerage account growth calculators with employer matching options.
 - Year-by-year breakdown of portfolio performance and cash flows.
 - Interactive charts for asset allocation, contributions, and equity growth.
 - Modern and responsive user interface built with React and Tailwind CSS.

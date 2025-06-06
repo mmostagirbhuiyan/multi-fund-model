@@ -10,8 +10,9 @@ export interface SummaryCardsProps {
     cashExtracted: number;
     annualizedReturn: number;
     equityMultiple: number;
+    years: number;
   };
-  calculatorType: 'reit' | 'roth' | 'k401';
+  calculatorType: 'reit' | 'roth' | 'k401' | 'brokerage';
 }
 
 const SummaryCards: React.FC<SummaryCardsProps> = ({ results, calculatorType }) => {
@@ -155,7 +156,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ results, calculatorType }) 
           {/* Card Footer */}
           <div className="mt-4 pt-4 border-t border-slate-700/30">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-400">30-Year Projection</span>
+              <span className="text-slate-400">{results.years}-Year Projection</span>
               <span className="text-slate-300 font-medium">Compound Growth</span>
             </div>
           </div>
