@@ -1,15 +1,14 @@
-# Professional 30-Year REIT Analysis (React + TypeScript)
+# Investment Analyzer: Multi-Calculator Toolkit (React + TypeScript)
 
-A professional, interactive tool for analyzing real estate investment trusts (REITs) over a 30-year period. This application is a modern, maintainable replacement for a previous HTML version, built with a focus on a clean UI and robust calculation logic.
+A professional, interactive platform for modeling a variety of long-term investment strategies. It includes calculators for REIT portfolios, Roth IRA accounts, and detailed 401k growth projections, all wrapped in a clean and modern interface.
 
 ## Features
-- Comprehensive 30-year financial analysis with monthly granularity.
-- Accurate cash-out refinancing model including closing costs and seasoning periods.
-- Supports 1031 exchanges for tax-deferred property acquisition.
-- Detailed rental yield calculation with both itemized expense breakdown and net yield options.
-- Year-by-year breakdown of portfolio performance, cash flows, and debt.
-- Interactive charts for portfolio composition, annual cash flow, and overall portfolio value, net equity, and debt over time.
-- Modern and responsive user interface built with React and Material-UI.
+- Comprehensive 30-year projections with monthly granularity.
+- Real estate modeling with cash-out refinancing and 1031 exchanges.
+- Roth IRA and 401k growth calculators with employer matching options.
+- Year-by-year breakdown of portfolio performance and cash flows.
+- Interactive charts for asset allocation, contributions, and equity growth.
+- Modern and responsive user interface built with React and Tailwind CSS.
 
 ## Technology Stack
 - **Frontend:** React, TypeScript, Material-UI (MUI)
