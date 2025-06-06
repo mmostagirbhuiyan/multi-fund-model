@@ -5,10 +5,11 @@ A professional, interactive platform for modeling a variety of long-term investm
 ## Features
 - Adjustable multi-year projections with monthly granularity.
 - Real estate modeling with cash-out refinancing and 1031 exchanges.
-- Roth IRA, 401k, and brokerage account growth calculators with employer matching options.
+- Roth IRA, 401k, HSA, and brokerage account growth calculators with employer matching options.
 - Year-by-year breakdown of portfolio performance and cash flows.
 - Interactive charts for asset allocation, contributions, and equity growth.
 - Modern and responsive user interface built with React and Tailwind CSS.
+- Tax-free Roth IRA growth projections with simplified inputs.
 
 ## Technology Stack
 - **Frontend:** React, TypeScript, Material-UI (MUI)

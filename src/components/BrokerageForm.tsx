@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, Percent } from 'lucide-react';
+import { DollarSign, Percent, Calendar } from 'lucide-react';
 
 export interface BrokerageFormProps {
   onSubmit: (formData: any) => void;
@@ -113,7 +113,7 @@ const BrokerageForm: React.FC<BrokerageFormProps> = ({ onSubmit, initialData }) 
         <div>
           <label className={labelClasses}>
             <div className="flex items-center gap-2">
-              <Percent className="w-4 h-4 text-cyan-400" />
+              <Calendar className="w-4 h-4 text-cyan-400" />
               Projection Years
             </div>
           </label>

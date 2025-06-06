@@ -12,7 +12,7 @@ export interface SummaryCardsProps {
     equityMultiple: number;
     years: number;
   };
-  calculatorType: 'reit' | 'roth' | 'k401' | 'brokerage';
+  calculatorType: 'reit' | 'roth' | 'k401' | 'brokerage' | 'hsa';
 }
 
 const SummaryCards: React.FC<SummaryCardsProps> = ({ results, calculatorType }) => {
