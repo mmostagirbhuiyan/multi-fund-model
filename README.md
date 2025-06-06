@@ -3,6 +3,7 @@
 A professional, interactive platform for modeling a variety of long-term investment strategies. It includes calculators for REIT portfolios, Roth IRA accounts, and detailed 401k growth projections, all wrapped in a clean and modern interface.
 
 [![Build and Deploy](https://github.com/mmostagirbhuiyan/multi-fund-model/actions/workflows/deploy.yml/badge.svg)](https://github.com/mmostagirbhuiyan/multi-fund-model/actions/workflows/deploy.yml)
+[![Tests](https://github.com/mmostagirbhuiyan/multi-fund-model/actions/workflows/test.yml/badge.svg)](https://github.com/mmostagirbhuiyan/multi-fund-model/actions/workflows/test.yml)
 
 ## Features
 - Adjustable multi-year projections with monthly granularity.
@@ -34,6 +35,14 @@ A professional, interactive platform for modeling a variety of long-term investm
    npm run dev
    ```
 4. Open your browser and navigate to [http://localhost:5173](http://localhost:5173).
+
+## Running Tests
+
+Vitest is used for unit testing. Run all tests locally with:
+```bash
+npm test
+```
+Tests also run automatically for each pull request via GitHub Actions.
 
 ## Deployment to GitHub Pages
 
