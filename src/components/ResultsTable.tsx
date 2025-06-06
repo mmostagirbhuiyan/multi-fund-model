@@ -16,12 +16,13 @@ export interface YearlyResult {
 
 export interface ResultsTableProps {
   results: YearlyResult[];
+  calculatorType: 'reit' | 'roth';
 }
 
 type Order = 'asc' | 'desc';
 type OrderBy = keyof YearlyResult;
 
-const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
+const ResultsTable: React.FC<ResultsTableProps> = ({ results, calculatorType }) => {
   const [order, setOrder] = useState<Order>('asc');
   const [orderBy, setOrderBy] = useState<OrderBy>('year');
 
@@ -42,7 +43,8 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
     return [...results].sort(comparator);
   }, [results, order, orderBy]);
 
-  const headers: { id: OrderBy; label: string; icon?: React.ReactNode }[] = [
+  const isREIT = calculatorType === 'reit';
+  const headers: { id: OrderBy; label: string; icon?: React.ReactNode }[] = isREIT ? [
     { id: 'year', label: 'Year' },
     { id: 'propertyCount', label: 'Properties' },
     { id: 'action', label: 'Action' },
@@ -52,6 +54,11 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
     { id: 'annualCashFlow', label: 'Annual Cash Flow', icon: <DollarSign className="w-4 h-4" /> },
     { id: 'cashBalance', label: 'Cash Balance', icon: <DollarSign className="w-4 h-4" /> },
     { id: 'totalDebtService', label: 'Debt Service', icon: <DollarSign className="w-4 h-4" /> },
+    { id: 'roi', label: 'Total ROI', icon: <Percent className="w-4 h-4" /> }
+  ] : [
+    { id: 'year', label: 'Year' },
+    { id: 'netEquity', label: 'Balance', icon: <DollarSign className="w-4 h-4" /> },
+    { id: 'annualCashFlow', label: 'Contribution', icon: <DollarSign className="w-4 h-4" /> },
     { id: 'roi', label: 'Total ROI', icon: <Percent className="w-4 h-4" /> }
   ];
 
@@ -114,14 +121,24 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
                   `}
                 >
                   <td className="px-6 py-4 text-sm text-slate-300">{result.year}</td>
-                  <td className="px-6 py-4 text-sm text-slate-300">{result.propertyCount}</td>
-                  <td className="px-6 py-4 text-sm text-slate-300">{result.action}</td>
-                  <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.totalValue)}</td>
-                  <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.totalDebt)}</td>
-                  <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.netEquity)}</td>
-                  <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.annualCashFlow)}</td>
-                  <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.cashBalance)}</td>
-                  <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.totalDebtService)}</td>
+                  {isREIT && (
+                    <>
+                      <td className="px-6 py-4 text-sm text-slate-300">{result.propertyCount}</td>
+                      <td className="px-6 py-4 text-sm text-slate-300">{result.action}</td>
+                      <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.totalValue)}</td>
+                      <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.totalDebt)}</td>
+                      <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.netEquity)}</td>
+                      <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.annualCashFlow)}</td>
+                      <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.cashBalance)}</td>
+                      <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.totalDebtService)}</td>
+                    </>
+                  )}
+                  {!isREIT && (
+                    <>
+                      <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.netEquity)}</td>
+                      <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{formatCurrency(result.annualCashFlow)}</td>
+                    </>
+                  )}
                   <td className="px-6 py-4 text-sm text-emerald-400 font-medium">{result.roi.toFixed(1)}%</td>
                 </tr>
               );

@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { Building2, Calculator, ChartBar, TrendingUp, ChevronDown, ChevronUp, Info, Zap, Activity } from 'lucide-react';
 import CalculatorForm from './components/CalculatorForm';
+import RothIRAForm from './components/RothIRAForm';
 import PortfolioChart from './components/PortfolioChart';
 import SummaryCards from './components/SummaryCards';
 import ResultsTable from './components/ResultsTable';
 import { calculateREIT } from './logic/reitCalculator';
+import { calculateRothIRA } from './logic/rothCalculator';
 
 function App() {
   const [results, setResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const [formData, setFormData] = useState<any>({
+  const [calculatorType, setCalculatorType] = useState<'reit' | 'roth'>('reit');
+  const [reitFormData, setReitFormData] = useState<any>({
     downPayment: 20,
     mortgageRate: 5.5,
     appreciationRate: 4,
@@ -28,33 +31,60 @@ function App() {
     vacancyRate: 5,
     netRentalYield: 5.5,
   });
+  const [rothFormData, setRothFormData] = useState<any>({
+    initialBalance: 0,
+    annualContribution: 6500,
+    annualGrowthRate: 7,
+  });
 
   const handleCalculate = async (newFormData: any) => {
-    setFormData(newFormData); // Update form data when calculating
     setIsLoading(true);
     try {
-      const calculatedResults = await calculateREIT(newFormData);
-      setResults({
-        ...calculatedResults.summary,
-        portfolioMetrics: {
-          portfolioComposition: {
-            labels: ['Equity', 'Debt'],
-            values: [calculatedResults.summary.netEquity, calculatedResults.summary.totalDebt],
+      if (calculatorType === 'reit') {
+        setReitFormData(newFormData);
+        const calculatedResults = await calculateREIT(newFormData);
+        setResults({
+          ...calculatedResults.summary,
+          portfolioMetrics: {
+            portfolioComposition: {
+              labels: ['Equity', 'Debt'],
+              values: [calculatedResults.summary.netEquity, calculatedResults.summary.totalDebt],
+            },
+            annualCashFlow: {
+              labels: calculatedResults.results.map(r => `Year ${r.year}`),
+              values: calculatedResults.results.map(r => r.annualCashFlow),
+            },
+            equityGrowth: {
+              labels: calculatedResults.results.map(r => `Year ${r.year}`),
+              values: calculatedResults.results.map(r => r.netEquity),
+            },
           },
-          annualCashFlow: {
-            labels: calculatedResults.results.map(r => `Year ${r.year}`),
-            values: calculatedResults.results.map(r => r.annualCashFlow),
+          detailedAnalysis: calculatedResults.results,
+        });
+      } else {
+        setRothFormData(newFormData);
+        const calculatedResults = calculateRothIRA(newFormData);
+        setResults({
+          ...calculatedResults.summary,
+          portfolioMetrics: {
+            portfolioComposition: {
+              labels: ['Balance', 'Debt'],
+              values: [calculatedResults.summary.netEquity, 0],
+            },
+            annualCashFlow: {
+              labels: calculatedResults.results.map(r => `Year ${r.year}`),
+              values: calculatedResults.results.map(r => r.annualCashFlow),
+            },
+            equityGrowth: {
+              labels: calculatedResults.results.map(r => `Year ${r.year}`),
+              values: calculatedResults.results.map(r => r.netEquity),
+            },
           },
-          equityGrowth: {
-            labels: calculatedResults.results.map(r => `Year ${r.year}`),
-            values: calculatedResults.results.map(r => r.netEquity),
-          },
-        },
-        detailedAnalysis: calculatedResults.results,
-      });
+          detailedAnalysis: calculatedResults.results,
+        });
+      }
     } catch (error) {
-      console.error('Error calculating REIT metrics:', error);
-      // TODO: Add proper error handling
+      console.error('Error calculating metrics:', error);
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +107,7 @@ function App() {
             </div>
             
             <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
-              Calculating REIT Metrics
+              {calculatorType === 'reit' ? 'Calculating REIT Metrics' : 'Calculating Roth IRA Growth'}
             </h2>
             <p className="text-slate-300 text-lg mb-4">Analyzing 30-year portfolio performance...</p>
             
@@ -107,7 +137,9 @@ function App() {
             {/* Status Badge */}
             <div className="inline-flex items-center gap-2 bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-full px-6 py-3 mb-8 shadow-lg">
               <Building2 className="w-5 h-5 text-blue-400" />
-              <span className="text-white font-medium">Advanced REIT Fund Modeling</span>
+              <span className="text-white font-medium">
+                {calculatorType === 'reit' ? 'Advanced REIT Modeling' : 'Roth IRA Growth Calculator'}
+              </span>
               <div className="flex items-center ml-2">
                 <Zap className="w-4 h-4 text-yellow-400 animate-pulse mr-1" />
                 <span className="text-xs text-slate-300">30-Year Analysis</span>
@@ -128,7 +160,7 @@ function App() {
               <div className="text-left">
                 <h1 className="text-7xl md:text-8xl font-black leading-none">
                   <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                    REIT
+                    {calculatorType === 'reit' ? 'REIT' : 'Roth IRA'}
                   </span>
                   <br />
                   <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
@@ -140,7 +172,9 @@ function App() {
             
             <div className="max-w-3xl mx-auto space-y-4">
               <p className="text-2xl text-slate-300 leading-relaxed">
-                Professional-grade modeling for Real Estate Investment Trust portfolios
+                {calculatorType === 'reit'
+                  ? 'Professional-grade modeling for Real Estate Investment Trust portfolios'
+                  : 'Long-term projection of tax-free retirement savings'}
               </p>
               
               <div className="flex flex-wrap justify-center gap-4 text-sm">
@@ -162,6 +196,20 @@ function App() {
 
           {/* Main Calculator Section */}
           <div className="max-w-6xl mx-auto mb-12">
+            <div className="flex justify-center mb-6 space-x-4">
+              <button
+                onClick={() => setCalculatorType('reit')}
+                className={`px-4 py-2 rounded-full border ${calculatorType === 'reit' ? 'bg-blue-600 border-blue-600' : 'bg-slate-700 border-slate-600'}`}
+              >
+                REIT
+              </button>
+              <button
+                onClick={() => setCalculatorType('roth')}
+                className={`px-4 py-2 rounded-full border ${calculatorType === 'roth' ? 'bg-blue-600 border-blue-600' : 'bg-slate-700 border-slate-600'}`}
+              >
+                Roth IRA
+              </button>
+            </div>
             <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-600 rounded-2xl flex items-center justify-center">
@@ -169,10 +217,16 @@ function App() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-white">Investment Calculator</h2>
-                  <p className="text-slate-400">Configure your REIT portfolio parameters</p>
+                  <p className="text-slate-400">
+                    {calculatorType === 'reit' ? 'Configure your REIT portfolio parameters' : 'Configure your Roth IRA inputs'}
+                  </p>
                 </div>
               </div>
-              <CalculatorForm onSubmit={handleCalculate} initialData={formData} />
+              {calculatorType === 'reit' ? (
+                <CalculatorForm onSubmit={handleCalculate} initialData={reitFormData} />
+              ) : (
+                <RothIRAForm onSubmit={handleCalculate} initialData={rothFormData} />
+              )}
             </div>
           </div>
         </div>
@@ -183,7 +237,7 @@ function App() {
         <div className="relative container mx-auto px-6 pb-20">
           {/* Summary Cards */}
           <div className="mb-12">
-            <SummaryCards results={results} />
+            <SummaryCards results={results} calculatorType={calculatorType} />
           </div>
 
           {/* Expandable Sections */}
@@ -240,7 +294,7 @@ function App() {
               {expandedSection === 'analysis' && (
                 <div className="border-t border-slate-700/50 bg-slate-900/20">
                   <div className="p-8 animate-in slide-in-from-top duration-500">
-                    <ResultsTable results={results.detailedAnalysis} />
+                    <ResultsTable results={results.detailedAnalysis} calculatorType={calculatorType} />
                   </div>
                 </div>
               )}
@@ -345,17 +399,17 @@ function App() {
                 <Building2 className="w-6 h-6 text-white" />
               </div>
               <div className="text-left">
-                <span className="text-white font-bold text-2xl">REIT Analyzer</span>
+                <span className="text-white font-bold text-2xl">Investment Analyzer</span>
                 <div className="text-slate-400 text-sm">Professional Edition</div>
               </div>
             </div>
             
             <p className="text-slate-300 text-lg mb-4">
-              Advanced REIT portfolio modeling and analysis platform
+              Advanced investment modeling and analysis platform
             </p>
             
             <div className="flex justify-center space-x-6 text-sm text-slate-400">
-              <span>© 2024 REIT Analyzer</span>
+              <span>© 2024 Investment Analyzer</span>
               <span>•</span>
               <span>Professional Financial Modeling</span>
               <span>•</span>
