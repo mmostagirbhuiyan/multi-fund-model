@@ -19,6 +19,7 @@ export interface MonteCarloResult {
   p10: number[];
   p50: number[];
   p90: number[];
+  finalValues: number[];
 }
 
 export function runMonteCarlo(
@@ -43,16 +44,21 @@ export function runMonteCarlo(
   const p10: number[] = [];
   const p50: number[] = [];
   const p90: number[] = [];
+  const finalValues: number[] = [];
   for (let y = 0; y < years; y++) {
     const vals = trials.map(t => t[y]).sort((a, b) => a - b);
     p10.push(quantileSorted(vals, 0.1));
     p50.push(quantileSorted(vals, 0.5));
     p90.push(quantileSorted(vals, 0.9));
   }
+  for (const t of trials) {
+    finalValues.push(t[t.length - 1]);
+  }
   return {
     labels: Array.from({ length: years }, (_, i) => `Year ${i + 1}`),
     p10,
     p50,
     p90,
+    finalValues,
   };
 }

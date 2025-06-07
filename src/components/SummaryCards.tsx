@@ -1,5 +1,7 @@
 import React from 'react';
 import { Building2, DollarSign, TrendingUp, Wallet, ArrowUpRight, Percent, Activity } from 'lucide-react';
+import RangeSummary from './RangeSummary';
+import GoalProbabilityCard from './GoalProbabilityCard';
 
 export interface SummaryCardsProps {
   results: {
@@ -13,12 +15,14 @@ export interface SummaryCardsProps {
     years: number;
     rangeLow?: number;
     rangeHigh?: number;
+    goalProbability?: number;
   };
   calculatorType: 'reit' | 'roth' | 'k401' | 'brokerage' | 'hsa';
 }
 
 const SummaryCards: React.FC<SummaryCardsProps> = ({ results, calculatorType }) => {
   const isREIT = calculatorType === 'reit';
+  const showMonteCarloRange = !isREIT && results.rangeLow !== undefined;
   const cardData = isREIT ? [
     {
       title: 'Total Properties',
@@ -121,7 +125,16 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ results, calculatorType }) 
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {cardData.map((card, index) => (
+      {showMonteCarloRange && (
+        <RangeSummary
+          pessimistic={results.rangeLow!}
+          likely={results.portfolioValue}
+          optimistic={results.rangeHigh!}
+        />
+      )}
+      {cardData
+        .filter((_, idx) => !(showMonteCarloRange && idx === 0))
+        .map((card, index) => (
         <div
           key={index}
           className="group relative bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-800/60 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-blue-500/10"
@@ -172,6 +185,9 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ results, calculatorType }) 
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
       ))}
+      {showMonteCarloRange && results.goalProbability !== undefined && (
+        <GoalProbabilityCard probability={results.goalProbability} />
+      )}
     </div>
   );
 };

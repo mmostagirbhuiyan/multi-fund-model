@@ -16,6 +16,7 @@ const BrokerageForm: React.FC<BrokerageFormProps> = ({ onSubmit, initialData }) 
     taxRate: initialData?.taxRate ?? 15,
     years: initialData?.years ?? 30,
     riskProfile: initialData?.riskProfile ?? 'medium',
+    target: initialData?.target ?? ''
   });
 
   const handleChange = (field: string, value: string | number) => {
@@ -154,6 +155,22 @@ const BrokerageForm: React.FC<BrokerageFormProps> = ({ onSubmit, initialData }) 
             <option value="medium">Medium</option>
             <option value="high">High</option>
           </select>
+        </div>
+        <div>
+          <label className={labelClasses}>
+            <div className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-green-400" />
+              What is your financial target?
+            </div>
+          </label>
+          <input
+            type="number"
+            value={formData.target}
+            onChange={e => handleChange('target', e.target.value)}
+            className={inputClasses}
+            step="1000"
+            min="0"
+          />
         </div>
       </div>
       <button
