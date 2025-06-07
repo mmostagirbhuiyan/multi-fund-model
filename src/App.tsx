@@ -13,11 +13,13 @@ import { calculateRothIRA } from './logic/rothCalculator';
 import { calculate401k } from './logic/k401Calculator';
 import { calculateBrokerage } from './logic/brokerageCalculator';
 import { calculateHSA } from './logic/hsaCalculator';
+import { buildShareLink, parseQuery } from './utils/shareLink';
 
 function App() {
   const [results, setResults] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [shareCopied, setShareCopied] = useState(false);
   const [calculatorType, setCalculatorType] = useState<'reit' | 'roth' | 'k401' | 'brokerage' | 'hsa'>('reit');
   const [reitFormData, setReitFormData] = useState<any>({
     downPayment: 20,
@@ -200,6 +202,35 @@ function App() {
       setIsLoading(false);
     }
   };
+
+  React.useEffect(() => {
+    const { calculatorType: calc, formData } = parseQuery();
+    if (calc) {
+      setCalculatorType(calc as any);
+      if (calc === 'reit') {
+        const data = { ...reitFormData, ...formData };
+        setReitFormData(data);
+        handleCalculate(data);
+      } else if (calc === 'roth') {
+        const data = { ...rothFormData, ...formData };
+        setRothFormData(data);
+        handleCalculate(data);
+      } else if (calc === 'k401') {
+        const data = { ...k401FormData, ...formData };
+        setK401FormData(data);
+        handleCalculate(data);
+      } else if (calc === 'brokerage') {
+        const data = { ...brokerageFormData, ...formData };
+        setBrokerageFormData(data);
+        handleCalculate(data);
+      } else if (calc === 'hsa') {
+        const data = { ...hsaFormData, ...formData };
+        setHsaFormData(data);
+        handleCalculate(data);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (isLoading) {
     return (
@@ -470,10 +501,36 @@ function App() {
       {/* Results Section */}
       {results && (
         <div className="relative container mx-auto px-6 pb-20">
-          {/* Summary Cards */}
-          <div className="mb-12">
-            <SummaryCards results={results} calculatorType={calculatorType} />
-          </div>
+            {/* Summary Cards */}
+            <div className="mb-12">
+              <SummaryCards results={results} calculatorType={calculatorType} />
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => {
+                    const data =
+                      calculatorType === 'reit'
+                        ? reitFormData
+                        : calculatorType === 'roth'
+                        ? rothFormData
+                        : calculatorType === 'k401'
+                        ? k401FormData
+                        : calculatorType === 'brokerage'
+                        ? brokerageFormData
+                        : hsaFormData;
+                    const link = buildShareLink(calculatorType, data);
+                    navigator.clipboard.writeText(link);
+                    setShareCopied(true);
+                    setTimeout(() => setShareCopied(false), 2000);
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-full shadow"
+                >
+                  Share Scenario
+                </button>
+                {shareCopied && (
+                  <span className="ml-3 text-sm text-green-400">Link copied!</span>
+                )}
+              </div>
+            </div>
 
           {/* Expandable Sections */}
           <div className="space-y-6">
