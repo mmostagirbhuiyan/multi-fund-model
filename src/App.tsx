@@ -702,7 +702,7 @@ function App() {
             </p>
             
             <div className="flex justify-center space-x-6 text-sm text-slate-400">
-              <span>© 2024 Investment Analyzer</span>
+              <span>© 2025 Investment Analyzer</span>
               <span>•</span>
               <span>Professional Financial Modeling</span>
               <span>•</span>
