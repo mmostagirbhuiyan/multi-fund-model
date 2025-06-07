@@ -17,6 +17,13 @@ const PlanNameModal: React.FC<Props> = ({ open, onSave, onClose }) => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSave();
+    }
+  };
+
   if (!open) return null;
 
   return (
@@ -28,6 +35,7 @@ const PlanNameModal: React.FC<Props> = ({ open, onSave, onClose }) => {
           type="text"
           value={name}
           onChange={e => setName(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Plan name"
           className="w-full px-3 py-2 rounded bg-slate-700 text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
