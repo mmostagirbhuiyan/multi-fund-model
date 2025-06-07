@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Building2, Calculator, ChartBar, TrendingUp, ChevronDown, ChevronUp, Info, Zap, Activity } from 'lucide-react';
+import { Building2, Calculator, ChartBar, TrendingUp, ChevronDown, ChevronUp, Info, Zap, Activity, Share2 } from 'lucide-react';
 import CalculatorForm from './components/CalculatorForm';
 import RothIRAForm from './components/RothIRAForm';
 import K401Form from './components/K401Form';
@@ -522,9 +522,10 @@ function App() {
                     setShareCopied(true);
                     setTimeout(() => setShareCopied(false), 2000);
                   }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-full shadow"
+                  className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-sm font-medium px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
                 >
-                  Share Scenario
+                  <Share2 className="w-4 h-4" />
+                  <span>Share Scenario</span>
                 </button>
                 {shareCopied && (
                   <span className="ml-3 text-sm text-green-400">Link copied!</span>
