@@ -244,32 +244,21 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, initialData }
         </div>
 
         <div className="mb-6">
-          <div className="flex items-center gap-4 p-4 bg-slate-800/30 rounded-xl border border-slate-700/30">
-            <div className="flex items-center gap-2">
-              <input
-                type="radio"
-                id="itemized"
-                name="yieldMode"
-                value="itemized"
-                checked={formData.yieldMode === 'itemized'}
-                onChange={(e) => handleChange('yieldMode', e.target.value)}
-                className="w-4 h-4 text-blue-500 border-slate-600 focus:ring-blue-500 bg-slate-800 checked:bg-blue-500 checked:border-blue-500"
-              />
-              <label htmlFor="itemized" className="text-white">Itemized Yield Inputs</label>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="radio"
-                id="net"
-                name="yieldMode"
-                value="net"
-                checked={formData.yieldMode === 'net'}
-                onChange={(e) => handleChange('yieldMode', e.target.value)}
-                className="w-4 h-4 text-blue-500 border-slate-600 focus:ring-blue-500 bg-slate-800 checked:bg-blue-500 checked:border-blue-500"
-              />
-              <label htmlFor="net" className="text-white">Net Yield Input</label>
-            </div>
+          <div className="flex items-center justify-center bg-slate-800/30 rounded-full p-1 border border-slate-700/30">
+            <button
+              type="button"
+              onClick={() => handleChange('yieldMode', 'itemized')}
+              className={`flex-1 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${formData.yieldMode === 'itemized' ? 'bg-blue-600 text-white shadow' : 'text-slate-300 hover:bg-slate-700/30'}`}
+            >
+              Itemized Inputs
+            </button>
+            <button
+              type="button"
+              onClick={() => handleChange('yieldMode', 'net')}
+              className={`flex-1 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${formData.yieldMode === 'net' ? 'bg-blue-600 text-white shadow' : 'text-slate-300 hover:bg-slate-700/30'}`}
+            >
+              Net Yield Input
+            </button>
           </div>
         </div>
 
