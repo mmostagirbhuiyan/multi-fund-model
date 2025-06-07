@@ -3,6 +3,8 @@ import { Building2, Calculator, ChartBar, TrendingUp, ChevronDown, ChevronUp, In
 import PlanSidebar from './components/PlanSidebar';
 import { Plan, PlanResult } from './types';
 import ComparisonChart from './components/ComparisonChart';
+import AnnualGrowthChart from './components/AnnualGrowthChart';
+import KeyInsights from './components/KeyInsights';
 import Toast from './components/Toast';
 import PlanNameModal from './components/PlanNameModal';
 import CalculatorForm from './components/CalculatorForm';
@@ -750,33 +752,70 @@ function App() {
           {comparePlans && (
             <div className="mb-12">
               <h3 className="text-xl font-semibold mb-4 text-white">Comparison</h3>
-              <ComparisonChart
-                labels={comparePlans[0].result.results.map((r: any) => `Year ${r.year}`)}
-                datasets={[
-                  {
-                    label: comparePlans[0].plan.name,
-                    data: comparePlans[0].result.results.map((r: any) => r.netEquity),
-                    borderColor: 'rgba(99,102,241,1)'
-                  },
-                  {
-                    label: comparePlans[1].plan.name,
-                    data: comparePlans[1].result.results.map((r: any) => r.netEquity),
-                    borderColor: 'rgba(236,72,153,1)'
-                  }
-                ]}
-              />
+              {(() => {
+                const labels = comparePlans[0].result.results.map((r: any) => `Year ${r.year}`);
+                const interestA = comparePlans[0].result.results.map((r: any, idx: number, arr: any[]) =>
+                  idx === 0 ? r.netEquity : r.netEquity - arr[idx - 1].netEquity
+                );
+                const interestB = comparePlans[1].result.results.map((r: any, idx: number, arr: any[]) =>
+                  idx === 0 ? r.netEquity : r.netEquity - arr[idx - 1].netEquity
+                );
+                return (
+                  <>
+                    <div className="grid md:grid-cols-2 gap-8">
+                      <ComparisonChart
+                        labels={labels}
+                        datasets={[
+                          {
+                            label: comparePlans[0].plan.name,
+                            data: comparePlans[0].result.results.map((r: any) => r.netEquity),
+                            borderColor: 'rgba(99,102,241,1)'
+                          },
+                          {
+                            label: comparePlans[1].plan.name,
+                            data: comparePlans[1].result.results.map((r: any) => r.netEquity),
+                            borderColor: 'rgba(236,72,153,1)'
+                          }
+                        ]}
+                      />
+                      <AnnualGrowthChart
+                        labels={labels}
+                        datasets={[
+                          {
+                            label: comparePlans[0].plan.name,
+                            data: interestA,
+                            backgroundColor: 'rgba(99,102,241,0.6)'
+                          },
+                          {
+                            label: comparePlans[1].plan.name,
+                            data: interestB,
+                            backgroundColor: 'rgba(236,72,153,0.6)'
+                          }
+                        ]}
+                      />
+                    </div>
+                    <KeyInsights plans={comparePlans} />
+                  </>
+                );
+              })()}
               <div className="mt-4 grid grid-cols-2 gap-4 text-sm text-slate-200">
-                <div className="bg-slate-800/40 p-4 rounded-xl">
+                <div className="bg-slate-800/40 p-4 rounded-xl space-y-1">
                   <div className="font-semibold mb-2">{comparePlans[0].plan.name}</div>
-                  <div>Final Value: ${comparePlans[0].result.summary.netEquity.toLocaleString()}</div>
-                  <div>Total Contributions: ${comparePlans[0].result.summary.cashExtracted.toLocaleString()}</div>
-                  <div>Total Interest: ${(comparePlans[0].result.summary.netEquity - comparePlans[0].result.summary.cashExtracted).toLocaleString()}</div>
+                  <div className="text-slate-400 text-xs">Final Value</div>
+                  <div className="text-2xl font-bold text-white">${Math.round(comparePlans[0].result.summary.netEquity).toLocaleString()}</div>
+                  <div className="text-slate-400 text-xs">Total Contributions</div>
+                  <div className="font-semibold text-white">${Math.round(comparePlans[0].result.summary.cashExtracted).toLocaleString()}</div>
+                  <div className="text-slate-400 text-xs">Total Interest</div>
+                  <div className="font-semibold text-white">${Math.round(comparePlans[0].result.summary.netEquity - comparePlans[0].result.summary.cashExtracted).toLocaleString()}</div>
                 </div>
-                <div className="bg-slate-800/40 p-4 rounded-xl">
+                <div className="bg-slate-800/40 p-4 rounded-xl space-y-1">
                   <div className="font-semibold mb-2">{comparePlans[1].plan.name}</div>
-                  <div>Final Value: ${comparePlans[1].result.summary.netEquity.toLocaleString()}</div>
-                  <div>Total Contributions: ${comparePlans[1].result.summary.cashExtracted.toLocaleString()}</div>
-                  <div>Total Interest: ${(comparePlans[1].result.summary.netEquity - comparePlans[1].result.summary.cashExtracted).toLocaleString()}</div>
+                  <div className="text-slate-400 text-xs">Final Value</div>
+                  <div className="text-2xl font-bold text-white">${Math.round(comparePlans[1].result.summary.netEquity).toLocaleString()}</div>
+                  <div className="text-slate-400 text-xs">Total Contributions</div>
+                  <div className="font-semibold text-white">${Math.round(comparePlans[1].result.summary.cashExtracted).toLocaleString()}</div>
+                  <div className="text-slate-400 text-xs">Total Interest</div>
+                  <div className="font-semibold text-white">${Math.round(comparePlans[1].result.summary.netEquity - comparePlans[1].result.summary.cashExtracted).toLocaleString()}</div>
                 </div>
               </div>
             </div>
