@@ -3,6 +3,7 @@ import { Building2, Calculator, ChartBar, TrendingUp, ChevronDown, ChevronUp, In
 import PlanSidebar from './components/PlanSidebar';
 import { Plan, PlanResult } from './types';
 import ComparisonChart from './components/ComparisonChart';
+import Toast from './components/Toast';
 import CalculatorForm from './components/CalculatorForm';
 import RothIRAForm from './components/RothIRAForm';
 import K401Form from './components/K401Form';
@@ -78,6 +79,10 @@ function App() {
   const [savedPlans, setSavedPlans] = useState<Plan[]>([]);
   const [showPlans, setShowPlans] = useState(false);
   const [comparePlans, setComparePlans] = useState<PlanResult[] | null>(null);
+  const [showSaveNudge, setShowSaveNudge] = useState(false);
+  const [showComparePrompt, setShowComparePrompt] = useState(false);
+  const [lastSavedPlan, setLastSavedPlan] = useState<Plan | null>(null);
+  const [lastCalculatedData, setLastCalculatedData] = useState<any>(null);
 
   React.useEffect(() => {
     const stored = localStorage.getItem('savedPlans');
@@ -88,6 +93,9 @@ function App() {
 
   React.useEffect(() => {
     localStorage.setItem('savedPlans', JSON.stringify(savedPlans));
+    if (savedPlans.length > 0) {
+      setLastSavedPlan(savedPlans[savedPlans.length - 1]);
+    }
   }, [savedPlans]);
 
   React.useEffect(() => {
@@ -107,6 +115,8 @@ function App() {
 
   const handleCalculate = async (newFormData: any) => {
     setIsLoading(true);
+    setShowComparePrompt(false);
+    setShowSaveNudge(false);
     try {
       if (calculatorType === 'reit') {
         setReitFormData(newFormData);
@@ -218,6 +228,16 @@ function App() {
       console.error('Error calculating metrics:', error);
     } finally {
       setIsLoading(false);
+      setLastCalculatedData(newFormData);
+      if (!sessionStorage.getItem('firstCalcDone')) {
+        setShowSaveNudge(true);
+        sessionStorage.setItem('firstCalcDone', 'true');
+      } else if (
+        lastSavedPlan &&
+        JSON.stringify(newFormData) !== JSON.stringify(lastSavedPlan.formData)
+      ) {
+        setShowComparePrompt(true);
+      }
     }
   };
 
@@ -236,6 +256,9 @@ function App() {
         : hsaFormData;
     const newPlan: Plan = { name, calculatorType, formData };
     setSavedPlans(prev => [...prev.filter(p => p.name !== name), newPlan]);
+    setLastSavedPlan(newPlan);
+    setShowSaveNudge(false);
+    setShowComparePrompt(false);
   };
 
   const loadPlan = (plan: Plan) => {
@@ -834,6 +857,27 @@ function App() {
           </div>
         </div>
       </footer>
+      {showSaveNudge && (
+        <Toast
+          message="Happy with this projection? Save it to compare against other ideas."
+          actions={[{ label: 'Save Plan', onClick: handleSavePlan, primary: true }]}
+          onClose={() => setShowSaveNudge(false)}
+        />
+      )}
+      {showComparePrompt && lastSavedPlan && (
+        <Toast
+          message={`This new scenario looks different from your saved \"${lastSavedPlan.name}\".`}
+          actions={[
+            { label: 'Compare Side-by-Side', onClick: () => {
+                const current: Plan = { name: 'Current Scenario', calculatorType, formData: lastCalculatedData };
+                comparePlanResults(current, lastSavedPlan);
+                setShowComparePrompt(false);
+              }, primary: true },
+            { label: 'Save as New Plan', onClick: () => { handleSavePlan(); setShowComparePrompt(false); } }
+          ]}
+          onClose={() => setShowComparePrompt(false)}
+        />
+      )}
     </div>
   );
 }
