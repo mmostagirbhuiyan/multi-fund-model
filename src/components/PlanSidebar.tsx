@@ -46,7 +46,12 @@ const PlanSidebar: React.FC<Props> = ({ plans, open, onClose, onLoad, onDelete, 
         </button>
       </div>
       <div className="p-4 space-y-4 overflow-y-auto h-[calc(100%-120px)]">
-        {plans.length === 0 && <p className="text-slate-400 text-sm">No saved plans.</p>}
+        {plans.length === 0 && (
+          <div className="text-slate-400 text-sm space-y-1 p-2">
+            <div className="font-medium text-slate-300">Your Plans Will Appear Here</div>
+            <p>Run a calculation and save it to get started. You can then create other plans to compare different strategies.</p>
+          </div>
+        )}
         {plans.map(plan => (
           <div key={plan.name} className="flex items-center justify-between bg-slate-800/40 border border-slate-700/50 rounded-lg p-3">
             <div className="flex items-center gap-2">
