@@ -90,6 +90,7 @@ function App() {
   const [comparePlans, setComparePlans] = useState<PlanResult[] | null>(null);
   const [showSaveNudge, setShowSaveNudge] = useState(false);
   const [showComparePrompt, setShowComparePrompt] = useState(false);
+  const [showMonteCarloNudge, setShowMonteCarloNudge] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [lastSavedPlan, setLastSavedPlan] = useState<Plan | null>(null);
   const [lastCalculatedData, setLastCalculatedData] = useState<any>(null);
@@ -172,10 +173,15 @@ function App() {
               : 0,
           equityMultiple: totalInvested > 0 ? finalMedian / totalInvested : 0,
         };
+        const probability =
+          newFormData.target
+            ? (mc.finalValues.filter(v => v >= newFormData.target).length / mc.finalValues.length) * 100
+            : undefined;
         setResults({
           ...summary,
           rangeLow: mc.p10[mc.p10.length - 1],
           rangeHigh: mc.p90[mc.p90.length - 1],
+          goalProbability: probability,
           portfolioMetrics: {
             portfolioComposition: {
               labels: ['Final Balance', 'Total Contributions'],
@@ -216,10 +222,15 @@ function App() {
               : 0,
           equityMultiple: totalInvested > 0 ? finalMedian / totalInvested : 0,
         };
+        const probability =
+          newFormData.target
+            ? (mc.finalValues.filter(v => v >= newFormData.target).length / mc.finalValues.length) * 100
+            : undefined;
         setResults({
           ...summary,
           rangeLow: mc.p10[mc.p10.length - 1],
           rangeHigh: mc.p90[mc.p90.length - 1],
+          goalProbability: probability,
           portfolioMetrics: {
             portfolioComposition: {
               labels: ['Final Balance', 'Total Contributions'],
@@ -260,10 +271,15 @@ function App() {
               : 0,
           equityMultiple: totalInvested > 0 ? finalMedian / totalInvested : 0,
         };
+        const probability =
+          newFormData.target
+            ? (mc.finalValues.filter(v => v >= newFormData.target).length / mc.finalValues.length) * 100
+            : undefined;
         setResults({
           ...summary,
           rangeLow: mc.p10[mc.p10.length - 1],
           rangeHigh: mc.p90[mc.p90.length - 1],
+          goalProbability: probability,
           portfolioMetrics: {
             portfolioComposition: {
               labels: ['Final Balance', 'Total Contributions'],
@@ -304,10 +320,15 @@ function App() {
               : 0,
           equityMultiple: totalInvested > 0 ? finalMedian / totalInvested : 0,
         };
+        const probability =
+          newFormData.target
+            ? (mc.finalValues.filter(v => v >= newFormData.target).length / mc.finalValues.length) * 100
+            : undefined;
         setResults({
           ...summary,
           rangeLow: mc.p10[mc.p10.length - 1],
           rangeHigh: mc.p90[mc.p90.length - 1],
+          goalProbability: probability,
           portfolioMetrics: {
             portfolioComposition: {
               labels: ['Final Balance', 'Total Contributions'],
@@ -339,6 +360,13 @@ function App() {
         JSON.stringify(newFormData) !== JSON.stringify(lastSavedPlan.formData)
       ) {
         setShowComparePrompt(true);
+      }
+      if (
+        calculatorType !== 'reit' &&
+        !sessionStorage.getItem('mcExplainerShown')
+      ) {
+        setShowMonteCarloNudge(true);
+        sessionStorage.setItem('mcExplainerShown', 'true');
       }
     }
   };
@@ -1017,7 +1045,14 @@ function App() {
               }, primary: true },
             { label: 'Save as New Plan', onClick: () => { handleSavePlan(); setShowComparePrompt(false); } }
           ]}
-          onClose={() => setShowComparePrompt(false)}
+        onClose={() => setShowComparePrompt(false)}
+      />
+      )}
+      {showMonteCarloNudge && (
+        <Toast
+          message="A More Realistic Projection - Instead of one guess, we simulated 1,000+ potential market scenarios to show a likely range of outcomes for your plan."
+          actions={[{ label: 'Got it', onClick: () => setShowMonteCarloNudge(false), primary: true }]}
+          onClose={() => setShowMonteCarloNudge(false)}
         />
       )}
       <PlanNameModal
