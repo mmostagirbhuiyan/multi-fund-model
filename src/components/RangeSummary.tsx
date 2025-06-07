@@ -1,4 +1,6 @@
 import React from 'react';
+import { Target } from 'lucide-react';
+import MetricCard from './MetricCard';
 
 interface RangeSummaryProps {
   pessimistic: number;
@@ -6,25 +8,24 @@ interface RangeSummaryProps {
   optimistic: number;
 }
 
-const formatCurrency = (val: number) =>
-  `$${Math.round(val).toLocaleString()}`;
+const abbreviate = (num: number) => {
+  if (num >= 1_000_000)
+    return `$${(num / 1_000_000).toFixed(1)}M`;
+  if (num >= 1_000)
+    return `$${Math.round(num / 1000)}K`;
+  return `$${Math.round(num)}`;
+};
 
 const RangeSummary: React.FC<RangeSummaryProps> = ({ pessimistic, likely, optimistic }) => {
+  const subtitle = `Range: ${abbreviate(pessimistic)} - ${abbreviate(optimistic)}`;
   return (
-    <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 flex justify-between text-center">
-      <div className="flex-1">
-        <div className="text-sm text-slate-400 mb-1">Pessimistic</div>
-        <div className="text-lg font-semibold text-red-300">{formatCurrency(pessimistic)}</div>
-      </div>
-      <div className="flex-1">
-        <div className="text-sm text-slate-400 mb-1">Likely Projection</div>
-        <div className="text-2xl font-bold text-white">{formatCurrency(likely)}</div>
-      </div>
-      <div className="flex-1">
-        <div className="text-sm text-slate-400 mb-1">Optimistic</div>
-        <div className="text-lg font-semibold text-green-300">{formatCurrency(optimistic)}</div>
-      </div>
-    </div>
+    <MetricCard
+      icon={Target}
+      title="Likely Projection"
+      value={abbreviate(likely)}
+      subtitle={subtitle}
+      gradient="from-blue-500 to-purple-600"
+    />
   );
 };
 
