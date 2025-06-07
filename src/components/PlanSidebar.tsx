@@ -35,7 +35,10 @@ const PlanSidebar: React.FC<Props> = ({ plans, open, onClose, onLoad, onDelete, 
   };
 
   return (
-    <div className={`fixed top-0 right-0 h-full w-80 bg-slate-900/95 z-40 shadow-xl transform transition-transform ${open ? 'translate-x-0' : 'translate-x-full'}`}>\
+    <div
+      className={`fixed top-0 right-0 h-full w-80 bg-slate-900/95 z-40 shadow-xl transform transition-transform ${open ? 'translate-x-0' : 'translate-x-full'}`}
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
       <div className="p-4 flex justify-between items-center border-b border-slate-700">
         <h3 className="text-lg font-semibold text-white">My Plans</h3>
         <button onClick={onClose} className="text-slate-400 hover:text-white">
@@ -62,7 +65,7 @@ const PlanSidebar: React.FC<Props> = ({ plans, open, onClose, onLoad, onDelete, 
           </div>
         ))}
       </div>
-      <div className="p-4 border-t border-slate-700">
+      <div className="p-4 border-t border-slate-700 pb-6">
         <button
           disabled={selected.length !== 2}
           onClick={handleCompare}
