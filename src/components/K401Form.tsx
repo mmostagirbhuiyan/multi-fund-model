@@ -1,5 +1,6 @@
 import React from 'react';
 import { DollarSign, Percent, Calendar } from 'lucide-react';
+import HelpPopover from './HelpPopover';
 
 export interface K401FormProps {
   onSubmit: (formData: any) => void;
@@ -123,6 +124,11 @@ const K401Form: React.FC<K401FormProps> = ({ onSubmit, initialData }) => {
             <div className="flex items-center gap-2">
               <Percent className="w-4 h-4 text-teal-400" />
               Annual Return Rate
+              <HelpPopover
+                explanation="The average annual return you expect from this fund. Historically, the S&P 500 has averaged around 10%."
+                presets={[5,7,10]}
+                onSelect={val => handleChange('annualReturnRate', val)}
+              />
             </div>
           </label>
           <input
