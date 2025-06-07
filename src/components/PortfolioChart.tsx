@@ -33,6 +33,7 @@ export interface PortfolioChartProps {
     portfolioComposition: { labels: string[]; values: number[] };
     annualCashFlow: { labels: string[]; values: number[] };
     equityGrowth: { labels: string[]; values: number[] };
+    monteCarlo?: { labels: string[]; p10: number[]; p50: number[]; p90: number[] };
   };
 }
 
@@ -173,23 +174,61 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data }) => {
   };
 
   // Equity Growth Chart
-  const lineChartData = {
-    labels: data.equityGrowth.labels,
-    datasets: [{
-      label: 'Equity Growth',
-      data: data.equityGrowth.values,
-      borderColor: 'rgba(236, 72, 153, 1)',
-      backgroundColor: 'rgba(236, 72, 153, 0.1)',
-      fill: true,
-      tension: 0.4,
-      borderWidth: 2,
-      pointRadius: 4,
-      pointHoverRadius: 6,
-      pointBackgroundColor: 'rgba(236, 72, 153, 1)',
-      pointBorderColor: '#fff',
-      pointBorderWidth: 2
-    }]
-  };
+  const lineChartData = data.monteCarlo
+    ? {
+        labels: data.monteCarlo.labels,
+        datasets: [
+          {
+            label: '90th Percentile',
+            data: data.monteCarlo.p90,
+            borderColor: 'rgba(236,72,153,0)',
+            backgroundColor: 'rgba(236,72,153,0.2)',
+            fill: '-1',
+            tension: 0.4,
+          },
+          {
+            label: '10th Percentile',
+            data: data.monteCarlo.p10,
+            borderColor: 'rgba(236,72,153,0)',
+            backgroundColor: 'rgba(236,72,153,0.2)',
+            fill: true,
+            tension: 0.4,
+          },
+          {
+            label: 'Median',
+            data: data.monteCarlo.p50,
+            borderColor: 'rgba(236, 72, 153, 1)',
+            backgroundColor: 'rgba(236, 72, 153, 0.1)',
+            fill: false,
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: 'rgba(236, 72, 153, 1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+          },
+        ],
+      }
+    : {
+        labels: data.equityGrowth.labels,
+        datasets: [
+          {
+            label: 'Equity Growth',
+            data: data.equityGrowth.values,
+            borderColor: 'rgba(236, 72, 153, 1)',
+            backgroundColor: 'rgba(236, 72, 153, 0.1)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: 'rgba(236, 72, 153, 1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+          },
+        ],
+      };
 
   const lineChartOptions = {
     ...commonOptions,

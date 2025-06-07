@@ -11,6 +11,8 @@ export interface SummaryCardsProps {
     annualizedReturn: number;
     equityMultiple: number;
     years: number;
+    rangeLow?: number;
+    rangeHigh?: number;
   };
   calculatorType: 'reit' | 'roth' | 'k401' | 'brokerage' | 'hsa';
 }
@@ -148,6 +150,11 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ results, calculatorType }) 
             <div className="text-3xl font-bold text-white mb-1">
               {card.format(card.value)}
             </div>
+            {index === 0 && results.rangeLow !== undefined && (
+              <div className="text-xs text-slate-400">
+                Range: {`$${(results.rangeLow / 1000000).toFixed(1)}M`} - {`$${(results.rangeHigh / 1000000).toFixed(1)}M`}
+              </div>
+            )}
             
             {/* Animated background gradient */}
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
