@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Building2, Calculator, ChartBar, TrendingUp, ChevronDown, ChevronUp, Info, Zap, Activity, Share2 } from 'lucide-react';
+import PlanSidebar from './components/PlanSidebar';
+import { Plan, PlanResult } from './types';
+import ComparisonChart from './components/ComparisonChart';
 import CalculatorForm from './components/CalculatorForm';
 import RothIRAForm from './components/RothIRAForm';
 import K401Form from './components/K401Form';
@@ -71,6 +74,21 @@ function App() {
     annualGrowthRate: 7,
     years: 30,
   });
+
+  const [savedPlans, setSavedPlans] = useState<Plan[]>([]);
+  const [showPlans, setShowPlans] = useState(false);
+  const [comparePlans, setComparePlans] = useState<PlanResult[] | null>(null);
+
+  React.useEffect(() => {
+    const stored = localStorage.getItem('savedPlans');
+    if (stored) {
+      setSavedPlans(JSON.parse(stored));
+    }
+  }, []);
+
+  React.useEffect(() => {
+    localStorage.setItem('savedPlans', JSON.stringify(savedPlans));
+  }, [savedPlans]);
 
   React.useEffect(() => {
     setResults(null);
@@ -203,6 +221,54 @@ function App() {
     }
   };
 
+  const handleSavePlan = () => {
+    const name = prompt('Plan name');
+    if (!name) return;
+    const formData =
+      calculatorType === 'reit'
+        ? reitFormData
+        : calculatorType === 'roth'
+        ? rothFormData
+        : calculatorType === 'k401'
+        ? k401FormData
+        : calculatorType === 'brokerage'
+        ? brokerageFormData
+        : hsaFormData;
+    const newPlan: Plan = { name, calculatorType, formData };
+    setSavedPlans(prev => [...prev.filter(p => p.name !== name), newPlan]);
+  };
+
+  const loadPlan = (plan: Plan) => {
+    setCalculatorType(plan.calculatorType);
+    const data = plan.formData;
+    if (plan.calculatorType === 'reit') setReitFormData(data);
+    else if (plan.calculatorType === 'roth') setRothFormData(data);
+    else if (plan.calculatorType === 'k401') setK401FormData(data);
+    else if (plan.calculatorType === 'brokerage') setBrokerageFormData(data);
+    else setHsaFormData(data);
+    handleCalculate(data);
+  };
+
+  const deletePlan = (name: string) => {
+    setSavedPlans(prev => prev.filter(p => p.name !== name));
+  };
+
+  const comparePlanResults = (a: Plan, b: Plan) => {
+    const calcFor = async (plan: Plan) => {
+      if (plan.calculatorType === 'reit') return calculateREIT(plan.formData);
+      if (plan.calculatorType === 'roth') return calculateRothIRA(plan.formData);
+      if (plan.calculatorType === 'k401') return calculate401k(plan.formData);
+      if (plan.calculatorType === 'brokerage') return calculateBrokerage(plan.formData);
+      return calculateHSA(plan.formData);
+    };
+    Promise.all([calcFor(a), calcFor(b)]).then(([resA, resB]) => {
+      setComparePlans([
+        { plan: a, result: resA },
+        { plan: b, result: resB }
+      ]);
+    });
+  };
+
   React.useEffect(() => {
     const { calculatorType: calc, formData } = parseQuery();
     if (calc) {
@@ -273,6 +339,22 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+      <button
+        onClick={() => setShowPlans(true)}
+        className="fixed top-4 right-4 z-30 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+      >
+        My Plans
+      </button>
+      {showPlans && (
+        <PlanSidebar
+          plans={savedPlans}
+          open={showPlans}
+          onClose={() => setShowPlans(false)}
+          onLoad={loadPlan}
+          onDelete={deletePlan}
+          onCompare={comparePlanResults}
+        />
+      )}
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -504,7 +586,7 @@ function App() {
             {/* Summary Cards */}
             <div className="mb-12">
               <SummaryCards results={results} calculatorType={calculatorType} />
-              <div className="mt-4 flex justify-end">
+              <div className="mt-4 flex justify-end space-x-3">
                 <button
                   onClick={() => {
                     const data =
@@ -527,11 +609,52 @@ function App() {
                   <Share2 className="w-4 h-4" />
                   <span>Share Scenario</span>
                 </button>
+                <button
+                  onClick={handleSavePlan}
+                  className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-sm font-medium px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+                >
+                  Save Plan
+                </button>
                 {shareCopied && (
-                  <span className="ml-3 text-sm text-green-400">Link copied!</span>
+                  <span className="text-sm text-green-400">Link copied!</span>
                 )}
               </div>
             </div>
+
+          {comparePlans && (
+            <div className="mb-12">
+              <h3 className="text-xl font-semibold mb-4 text-white">Comparison</h3>
+              <ComparisonChart
+                labels={comparePlans[0].result.results.map((r: any) => `Year ${r.year}`)}
+                datasets={[
+                  {
+                    label: comparePlans[0].plan.name,
+                    data: comparePlans[0].result.results.map((r: any) => r.netEquity),
+                    borderColor: 'rgba(99,102,241,1)'
+                  },
+                  {
+                    label: comparePlans[1].plan.name,
+                    data: comparePlans[1].result.results.map((r: any) => r.netEquity),
+                    borderColor: 'rgba(236,72,153,1)'
+                  }
+                ]}
+              />
+              <div className="mt-4 grid grid-cols-2 gap-4 text-sm text-slate-200">
+                <div className="bg-slate-800/40 p-4 rounded-xl">
+                  <div className="font-semibold mb-2">{comparePlans[0].plan.name}</div>
+                  <div>Final Value: ${comparePlans[0].result.summary.netEquity.toLocaleString()}</div>
+                  <div>Total Contributions: ${comparePlans[0].result.summary.cashExtracted.toLocaleString()}</div>
+                  <div>Total Interest: ${(comparePlans[0].result.summary.netEquity - comparePlans[0].result.summary.cashExtracted).toLocaleString()}</div>
+                </div>
+                <div className="bg-slate-800/40 p-4 rounded-xl">
+                  <div className="font-semibold mb-2">{comparePlans[1].plan.name}</div>
+                  <div>Final Value: ${comparePlans[1].result.summary.netEquity.toLocaleString()}</div>
+                  <div>Total Contributions: ${comparePlans[1].result.summary.cashExtracted.toLocaleString()}</div>
+                  <div>Total Interest: ${(comparePlans[1].result.summary.netEquity - comparePlans[1].result.summary.cashExtracted).toLocaleString()}</div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Expandable Sections */}
           <div className="space-y-6">

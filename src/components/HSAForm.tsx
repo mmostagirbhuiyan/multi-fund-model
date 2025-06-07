@@ -1,5 +1,6 @@
 import React from 'react';
 import { DollarSign, Percent, Calendar, Stethoscope } from 'lucide-react';
+import HelpPopover from './HelpPopover';
 
 export interface HSAFormProps {
   onSubmit: (formData: any) => void;
@@ -86,6 +87,11 @@ const HSAForm: React.FC<HSAFormProps> = ({ onSubmit, initialData }) => {
             <div className="flex items-center gap-2">
               <Percent className="w-4 h-4 text-blue-400" />
               Annual Growth Rate
+              <HelpPopover
+                explanation="The average annual return you expect from this fund. Historically, the S&P 500 has averaged around 10%."
+                presets={[5,7,10]}
+                onSelect={val => handleChange('annualGrowthRate', val)}
+              />
             </div>
           </label>
           <input
