@@ -4,6 +4,7 @@ import PlanSidebar from './components/PlanSidebar';
 import { Plan, PlanResult } from './types';
 import ComparisonChart from './components/ComparisonChart';
 import Toast from './components/Toast';
+import PlanNameModal from './components/PlanNameModal';
 import CalculatorForm from './components/CalculatorForm';
 import RothIRAForm from './components/RothIRAForm';
 import K401Form from './components/K401Form';
@@ -87,6 +88,7 @@ function App() {
   const [comparePlans, setComparePlans] = useState<PlanResult[] | null>(null);
   const [showSaveNudge, setShowSaveNudge] = useState(false);
   const [showComparePrompt, setShowComparePrompt] = useState(false);
+  const [showNameModal, setShowNameModal] = useState(false);
   const [lastSavedPlan, setLastSavedPlan] = useState<Plan | null>(null);
   const [lastCalculatedData, setLastCalculatedData] = useState<any>(null);
 
@@ -340,8 +342,10 @@ function App() {
   };
 
   const handleSavePlan = () => {
-    const name = prompt('Plan name');
-    if (!name) return;
+    setShowNameModal(true);
+  };
+
+  const savePlanWithName = (name: string) => {
     const formData =
       calculatorType === 'reit'
         ? reitFormData
@@ -357,6 +361,7 @@ function App() {
     setLastSavedPlan(newPlan);
     setShowSaveNudge(false);
     setShowComparePrompt(false);
+    setShowNameModal(false);
   };
 
   const loadPlan = (plan: Plan) => {
@@ -976,6 +981,11 @@ function App() {
           onClose={() => setShowComparePrompt(false)}
         />
       )}
+      <PlanNameModal
+        open={showNameModal}
+        onSave={savePlanWithName}
+        onClose={() => setShowNameModal(false)}
+      />
     </div>
   );
 }

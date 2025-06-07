@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import { Plan } from '../types';
 
 interface Props {
@@ -54,15 +54,18 @@ const PlanSidebar: React.FC<Props> = ({ plans, open, onClose, onLoad, onDelete, 
         )}
         {plans.map(plan => (
           <div key={plan.name} className="flex items-center justify-between bg-slate-800/40 border border-slate-700/50 rounded-lg p-3">
-            <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2 relative">
               <input
                 type="checkbox"
                 checked={selected.includes(plan.name)}
                 onChange={() => toggle(plan.name)}
-                className="peer relative appearance-none w-5 h-5 border border-slate-600 rounded-sm bg-slate-800 cursor-pointer checked:bg-gradient-to-br checked:from-blue-500 checked:to-purple-600 checked:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500/50 after:content-['\\2713'] after:absolute after:inset-0 after:flex after:items-center after:justify-center after:text-[10px] after:text-white after:opacity-0 checked:after:opacity-100"
+                className="peer appearance-none w-5 h-5 border border-slate-600 rounded-sm bg-slate-800 cursor-pointer checked:bg-gradient-to-br checked:from-blue-500 checked:to-purple-600 checked:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               />
-              <span className="text-slate-200 text-sm">{plan.name}</span>
-            </div>
+              {selected.includes(plan.name) && (
+                <Check className="w-3 h-3 text-white absolute left-1 top-1 pointer-events-none" />
+              )}
+              <span className="text-slate-200 text-sm ml-1">{plan.name}</span>
+            </label>
             <div className="flex gap-2">
               <button
                 onClick={() => onLoad(plan)}
