@@ -18,6 +18,8 @@ import { calculate401k } from './logic/k401Calculator';
 import { calculateBrokerage } from './logic/brokerageCalculator';
 import { calculateHSA } from './logic/hsaCalculator';
 import { buildShareLink, parseQuery } from './utils/shareLink';
+import { runMonteCarlo } from './utils/monteCarlo';
+import { riskVolatility, RiskLevel } from './utils/riskProfiles';
 
 function App() {
   const [results, setResults] = useState<any>(null);
@@ -49,6 +51,7 @@ function App() {
     annualContribution: 6500,
     annualGrowthRate: 7,
     years: 30,
+    riskProfile: 'medium',
   });
   const [k401FormData, setK401FormData] = useState<any>({
     initialBalance: 1000,
@@ -59,6 +62,7 @@ function App() {
     annualReturnRate: 7,
     taxRate: 20,
     years: 30,
+    riskProfile: 'medium',
   });
   const [brokerageFormData, setBrokerageFormData] = useState<any>({
     initialBalance: 1000,
@@ -67,6 +71,7 @@ function App() {
     annualReturnRate: 7,
     taxRate: 15,
     years: 30,
+    riskProfile: 'medium',
   });
   const [hsaFormData, setHsaFormData] = useState<any>({
     initialBalance: 1000,
@@ -74,6 +79,7 @@ function App() {
     annualMedicalExpenses: 0,
     annualGrowthRate: 7,
     years: 30,
+    riskProfile: 'medium',
   });
 
   const [savedPlans, setSavedPlans] = useState<Plan[]>([]);
@@ -142,84 +148,176 @@ function App() {
       } else if (calculatorType === 'roth') {
         setRothFormData(newFormData);
         const calculatedResults = calculateRothIRA(newFormData);
-        setResults({
+        const contributions = calculatedResults.results.map(r => r.annualCashFlow);
+        const mc = runMonteCarlo({
+          initialBalance: newFormData.initialBalance,
+          contributions,
+          expectedReturn: newFormData.annualGrowthRate,
+          volatility: riskVolatility[newFormData.riskProfile as RiskLevel],
+        });
+        const finalMedian = mc.p50[mc.p50.length - 1];
+        const totalInvested = newFormData.initialBalance + contributions.reduce((a, b) => a + b, 0);
+        const summary = {
           ...calculatedResults.summary,
+          portfolioValue: finalMedian,
+          netEquity: finalMedian,
+          roi: totalInvested > 0 ? ((finalMedian - totalInvested) / totalInvested) * 100 : 0,
+          annualizedReturn:
+            newFormData.initialBalance > 0
+              ? (Math.pow(finalMedian / newFormData.initialBalance, 1 / mc.p50.length) - 1) * 100
+              : 0,
+          equityMultiple: totalInvested > 0 ? finalMedian / totalInvested : 0,
+        };
+        setResults({
+          ...summary,
+          rangeLow: mc.p10[mc.p10.length - 1],
+          rangeHigh: mc.p90[mc.p90.length - 1],
           portfolioMetrics: {
             portfolioComposition: {
               labels: ['Final Balance', 'Total Contributions'],
-              values: [calculatedResults.summary.netEquity, calculatedResults.summary.cashExtracted],
+              values: [finalMedian, calculatedResults.summary.cashExtracted],
             },
             annualCashFlow: {
-              labels: calculatedResults.results.map(r => `Year ${r.year}`),
-              values: calculatedResults.results.map(r => r.annualCashFlow),
+              labels: mc.labels,
+              values: contributions,
             },
             equityGrowth: {
-              labels: calculatedResults.results.map(r => `Year ${r.year}`),
-              values: calculatedResults.results.map(r => r.netEquity),
+              labels: mc.labels,
+              values: mc.p50,
             },
+            monteCarlo: mc,
           },
           detailedAnalysis: calculatedResults.results,
         });
       } else if (calculatorType === 'brokerage') {
         setBrokerageFormData(newFormData);
         const calculatedResults = calculateBrokerage(newFormData);
-        setResults({
+        const contributions = calculatedResults.results.map(r => r.annualCashFlow);
+        const mc = runMonteCarlo({
+          initialBalance: newFormData.initialBalance,
+          contributions,
+          expectedReturn: newFormData.annualReturnRate,
+          volatility: riskVolatility[newFormData.riskProfile as RiskLevel],
+        });
+        const finalMedian = mc.p50[mc.p50.length - 1];
+        const totalInvested = newFormData.initialBalance + contributions.reduce((a, b) => a + b, 0);
+        const summary = {
           ...calculatedResults.summary,
+          portfolioValue: finalMedian,
+          netEquity: finalMedian,
+          roi: totalInvested > 0 ? ((finalMedian - totalInvested) / totalInvested) * 100 : 0,
+          annualizedReturn:
+            newFormData.initialBalance > 0
+              ? (Math.pow(finalMedian / newFormData.initialBalance, 1 / mc.p50.length) - 1) * 100
+              : 0,
+          equityMultiple: totalInvested > 0 ? finalMedian / totalInvested : 0,
+        };
+        setResults({
+          ...summary,
+          rangeLow: mc.p10[mc.p10.length - 1],
+          rangeHigh: mc.p90[mc.p90.length - 1],
           portfolioMetrics: {
             portfolioComposition: {
               labels: ['Final Balance', 'Total Contributions'],
-              values: [calculatedResults.summary.netEquity, calculatedResults.summary.cashExtracted],
+              values: [finalMedian, calculatedResults.summary.cashExtracted],
             },
             annualCashFlow: {
-              labels: calculatedResults.results.map(r => `Year ${r.year}`),
-              values: calculatedResults.results.map(r => r.annualCashFlow),
+              labels: mc.labels,
+              values: contributions,
             },
             equityGrowth: {
-              labels: calculatedResults.results.map(r => `Year ${r.year}`),
-              values: calculatedResults.results.map(r => r.netEquity),
+              labels: mc.labels,
+              values: mc.p50,
             },
+            monteCarlo: mc,
           },
           detailedAnalysis: calculatedResults.results,
         });
       } else if (calculatorType === 'hsa') {
         setHsaFormData(newFormData);
         const calculatedResults = calculateHSA(newFormData);
-        setResults({
+        const contributions = calculatedResults.results.map(r => r.annualCashFlow);
+        const mc = runMonteCarlo({
+          initialBalance: newFormData.initialBalance,
+          contributions,
+          expectedReturn: newFormData.annualGrowthRate,
+          volatility: riskVolatility[newFormData.riskProfile as RiskLevel],
+        });
+        const finalMedian = mc.p50[mc.p50.length - 1];
+        const totalInvested = newFormData.initialBalance + contributions.reduce((a, b) => a + b, 0);
+        const summary = {
           ...calculatedResults.summary,
+          portfolioValue: finalMedian,
+          netEquity: finalMedian,
+          roi: totalInvested > 0 ? ((finalMedian - totalInvested) / totalInvested) * 100 : 0,
+          annualizedReturn:
+            newFormData.initialBalance > 0
+              ? (Math.pow(finalMedian / newFormData.initialBalance, 1 / mc.p50.length) - 1) * 100
+              : 0,
+          equityMultiple: totalInvested > 0 ? finalMedian / totalInvested : 0,
+        };
+        setResults({
+          ...summary,
+          rangeLow: mc.p10[mc.p10.length - 1],
+          rangeHigh: mc.p90[mc.p90.length - 1],
           portfolioMetrics: {
             portfolioComposition: {
               labels: ['Final Balance', 'Total Contributions'],
-              values: [calculatedResults.summary.netEquity, calculatedResults.summary.cashExtracted],
+              values: [finalMedian, calculatedResults.summary.cashExtracted],
             },
             annualCashFlow: {
-              labels: calculatedResults.results.map(r => `Year ${r.year}`),
-              values: calculatedResults.results.map(r => r.annualCashFlow),
+              labels: mc.labels,
+              values: contributions,
             },
             equityGrowth: {
-              labels: calculatedResults.results.map(r => `Year ${r.year}`),
-              values: calculatedResults.results.map(r => r.netEquity),
+              labels: mc.labels,
+              values: mc.p50,
             },
+            monteCarlo: mc,
           },
           detailedAnalysis: calculatedResults.results,
         });
       } else {
         setK401FormData(newFormData);
         const calculatedResults = calculate401k(newFormData);
-        setResults({
+        const contributions = calculatedResults.results.map(r => r.annualCashFlow);
+        const mc = runMonteCarlo({
+          initialBalance: newFormData.initialBalance,
+          contributions,
+          expectedReturn: newFormData.annualReturnRate,
+          volatility: riskVolatility[newFormData.riskProfile as RiskLevel],
+        });
+        const finalMedian = mc.p50[mc.p50.length - 1];
+        const totalInvested = newFormData.initialBalance + contributions.reduce((a, b) => a + b, 0);
+        const summary = {
           ...calculatedResults.summary,
+          portfolioValue: finalMedian,
+          netEquity: finalMedian,
+          roi: totalInvested > 0 ? ((finalMedian - totalInvested) / totalInvested) * 100 : 0,
+          annualizedReturn:
+            newFormData.initialBalance > 0
+              ? (Math.pow(finalMedian / newFormData.initialBalance, 1 / mc.p50.length) - 1) * 100
+              : 0,
+          equityMultiple: totalInvested > 0 ? finalMedian / totalInvested : 0,
+        };
+        setResults({
+          ...summary,
+          rangeLow: mc.p10[mc.p10.length - 1],
+          rangeHigh: mc.p90[mc.p90.length - 1],
           portfolioMetrics: {
             portfolioComposition: {
               labels: ['Final Balance', 'Total Contributions'],
-              values: [calculatedResults.summary.netEquity, calculatedResults.summary.cashExtracted],
+              values: [finalMedian, calculatedResults.summary.cashExtracted],
             },
             annualCashFlow: {
-              labels: calculatedResults.results.map(r => `Year ${r.year}`),
-              values: calculatedResults.results.map(r => r.annualCashFlow),
+              labels: mc.labels,
+              values: contributions,
             },
             equityGrowth: {
-              labels: calculatedResults.results.map(r => `Year ${r.year}`),
-              values: calculatedResults.results.map(r => r.netEquity),
+              labels: mc.labels,
+              values: mc.p50,
             },
+            monteCarlo: mc,
           },
           detailedAnalysis: calculatedResults.results,
         });

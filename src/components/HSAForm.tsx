@@ -14,12 +14,13 @@ const HSAForm: React.FC<HSAFormProps> = ({ onSubmit, initialData }) => {
     annualMedicalExpenses: initialData?.annualMedicalExpenses ?? 0,
     annualGrowthRate: initialData?.annualGrowthRate ?? 7,
     years: initialData?.years ?? 30,
+    riskProfile: initialData?.riskProfile ?? 'medium',
   });
 
   const handleChange = (field: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value === '' ? '' : Number(value)
+      [field]: field === 'riskProfile' ? value : value === '' ? '' : Number(value)
     }));
   };
 
@@ -118,6 +119,23 @@ const HSAForm: React.FC<HSAFormProps> = ({ onSubmit, initialData }) => {
             step="1"
             min="1"
           />
+        </div>
+        <div>
+          <label className={labelClasses}>
+            <div className="flex items-center gap-2">
+              <Percent className="w-4 h-4 text-purple-400" />
+              Risk Profile
+            </div>
+          </label>
+          <select
+            value={formData.riskProfile}
+            onChange={e => handleChange('riskProfile', e.target.value)}
+            className={inputClasses}
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
         </div>
       </div>
       <button
