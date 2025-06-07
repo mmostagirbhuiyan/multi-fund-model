@@ -28,15 +28,15 @@ const KeyInsights: React.FC<Props> = ({ plans }) => {
         <li>
           <span className="font-semibold text-indigo-400">{a.plan.name}</span> is projected to finish with
           <span className="font-bold text-indigo-400"> {formatDollar(Math.abs(delta))}</span>
-          {delta >= 0 ? ' more' : ' less'} than
-          <span className="font-semibold text-pink-400"> {b.plan.name}</span>.
+          {delta >= 0 ? ' more' : ' less'} than{' '}
+          <span className="font-semibold text-pink-400">{b.plan.name}</span>.
         </li>
         {contribDelta !== 0 && (
           <li>
-            This is primarily driven by
-            <span className="font-semibold text-indigo-400"> {delta >= 0 ? a.plan.name : b.plan.name}</span>
-            having
-            <span className="font-bold text-indigo-400"> {formatDollar(Math.abs(contribDelta))}</span>
+            This is primarily driven by{' '}
+            <span className="font-semibold text-indigo-400">{delta >= 0 ? a.plan.name : b.plan.name}</span>{' '}
+            having{' '}
+            <span className="font-bold text-indigo-400">{formatDollar(Math.abs(contribDelta))}</span>{' '}
             {contribDelta >= 0 ? ' more' : ' less'} in total contributions.
           </li>
         )}
