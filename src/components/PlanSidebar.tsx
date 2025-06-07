@@ -35,10 +35,15 @@ const PlanSidebar: React.FC<Props> = ({ plans, open, onClose, onLoad, onDelete, 
   };
 
   return (
-    <div
-      className={`fixed top-0 right-0 h-full w-80 bg-slate-900/95 z-40 shadow-xl transform transition-transform ${open ? 'translate-x-0' : 'translate-x-full'}`}
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-    >
+    <>
+      <div
+        onClick={onClose}
+        className={`fixed inset-0 z-30 bg-black/50 transition-opacity duration-300 ${open ? 'opacity-50' : 'opacity-0 pointer-events-none'}`}
+      />
+      <div
+        className={`fixed top-0 right-0 h-full w-80 bg-slate-900/95 z-40 shadow-xl transform transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
       <div className="p-4 flex justify-between items-center border-b border-slate-700">
         <h3 className="text-lg font-semibold text-white">My Plans</h3>
         <button onClick={onClose} className="text-slate-400 hover:text-white">
@@ -92,7 +97,7 @@ const PlanSidebar: React.FC<Props> = ({ plans, open, onClose, onLoad, onDelete, 
           Compare
         </button>
       </div>
-    </div>
+    </>
   );
 };
 
