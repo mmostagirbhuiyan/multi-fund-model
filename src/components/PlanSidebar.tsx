@@ -97,6 +97,7 @@ const PlanSidebar: React.FC<Props> = ({ plans, open, onClose, onLoad, onDelete, 
           Compare
         </button>
       </div>
+      </div>
     </>
   );
 };
