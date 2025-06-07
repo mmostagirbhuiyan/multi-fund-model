@@ -1,6 +1,7 @@
 import React from 'react';
 import { DollarSign, Percent, Calendar } from 'lucide-react';
 import HelpPopover from './HelpPopover';
+import SliderNumberInput from './SliderNumberInput';
 
 export interface BrokerageFormProps {
   onSubmit: (formData: any) => void;
@@ -113,14 +114,13 @@ const BrokerageForm: React.FC<BrokerageFormProps> = ({ onSubmit, initialData }) 
               Tax Rate %
             </div>
           </label>
-          <input
-            type="number"
+          <SliderNumberInput
             value={formData.taxRate}
-            onChange={e => handleChange('taxRate', e.target.value)}
-            className={inputClasses}
-            step="0.1"
-            min="0"
-            max="100"
+            onChange={val => handleChange('taxRate', val)}
+            min={0}
+            max={100}
+            step={0.1}
+            numberInputClassName={inputClasses}
           />
         </div>
         <div>
