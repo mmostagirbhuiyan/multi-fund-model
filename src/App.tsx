@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Building2, Calculator, ChartBar, TrendingUp, ChevronDown, ChevronUp, Info, Zap, Activity, Share2 } from 'lucide-react';
 import PlanSidebar from './components/PlanSidebar';
 import { Plan, PlanResult } from './types';
@@ -88,6 +88,7 @@ function App() {
   const [savedPlans, setSavedPlans] = useState<Plan[]>([]);
   const [showPlans, setShowPlans] = useState(false);
   const [comparePlans, setComparePlans] = useState<PlanResult[] | null>(null);
+  const comparisonRef = useRef<HTMLDivElement | null>(null);
   const [showSaveNudge, setShowSaveNudge] = useState(false);
   const [showComparePrompt, setShowComparePrompt] = useState(false);
   const [showMonteCarloNudge, setShowMonteCarloNudge] = useState(false);
@@ -112,6 +113,12 @@ function App() {
   React.useEffect(() => {
     setResults(null);
   }, [calculatorType]);
+
+  useEffect(() => {
+    if (comparePlans && comparisonRef.current) {
+      comparisonRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [comparePlans]);
 
   const currentYears =
     calculatorType === 'reit'
@@ -778,7 +785,7 @@ function App() {
             </div>
 
           {comparePlans && (
-            <div className="mb-12">
+            <div ref={comparisonRef} className="mb-12">
               <h3 className="text-xl font-semibold mb-4 text-white">Comparison</h3>
               {(() => {
                 const labels = comparePlans[0].result.results.map((r: any) => `Year ${r.year}`);
@@ -1027,14 +1034,14 @@ function App() {
           </div>
         </div>
       </footer>
-      {showSaveNudge && (
+      {showSaveNudge && !showComparePrompt && !showMonteCarloNudge && (
         <Toast
           message="Happy with this projection? Save it to compare against other ideas."
           actions={[{ label: 'Save Plan', onClick: handleSavePlan, primary: true }]}
           onClose={() => setShowSaveNudge(false)}
         />
       )}
-      {showComparePrompt && lastSavedPlan && (
+      {showComparePrompt && lastSavedPlan && !showMonteCarloNudge && (
         <Toast
           message={`This new scenario looks different from your saved \"${lastSavedPlan.name}\".`}
           actions={[
